@@ -1,0 +1,395 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-06T16:18:37.938Z",
+  "title": "Design System for PolicyDiff AI",
+  "extensions": {
+    "colorMeta": {
+      "navy": {
+        "role": "primary",
+        "displayName": "Deep Navy",
+        "tonalRamp": [
+          "oklch(15% 0.018 253.0)",
+          "oklch(27% 0.034 253.0)",
+          "oklch(38% 0.044 253.0)",
+          "oklch(50% 0.052 253.0)",
+          "oklch(62% 0.052 253.0)",
+          "oklch(73% 0.044 253.0)",
+          "oklch(85% 0.031 253.0)",
+          "oklch(95% 0.013 253.0)"
+        ]
+      },
+      "navy-raised": {
+        "role": "primary",
+        "displayName": "Raised Navy",
+        "tonalRamp": [
+          "oklch(15% 0.020 249.7)",
+          "oklch(27% 0.036 249.7)",
+          "oklch(38% 0.048 249.7)",
+          "oklch(50% 0.056 249.7)",
+          "oklch(62% 0.056 249.7)",
+          "oklch(73% 0.048 249.7)",
+          "oklch(85% 0.034 249.7)",
+          "oklch(95% 0.014 249.7)"
+        ]
+      },
+      "navy-current": {
+        "role": "primary",
+        "displayName": "Current Navy",
+        "tonalRamp": [
+          "oklch(15% 0.020 245.4)",
+          "oklch(27% 0.038 245.4)",
+          "oklch(38% 0.049 245.4)",
+          "oklch(50% 0.058 245.4)",
+          "oklch(62% 0.058 245.4)",
+          "oklch(73% 0.049 245.4)",
+          "oklch(85% 0.035 245.4)",
+          "oklch(95% 0.014 245.4)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "tonalRamp": [
+          "oklch(15% 0.016 250.8)",
+          "oklch(27% 0.030 250.8)",
+          "oklch(38% 0.040 250.8)",
+          "oklch(50% 0.047 250.8)",
+          "oklch(62% 0.047 250.8)",
+          "oklch(73% 0.040 250.8)",
+          "oklch(85% 0.028 250.8)",
+          "oklch(95% 0.012 250.8)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Slate",
+        "tonalRamp": [
+          "oklch(15% 0.011 248.5)",
+          "oklch(27% 0.020 248.5)",
+          "oklch(38% 0.026 248.5)",
+          "oklch(50% 0.030 248.5)",
+          "oklch(62% 0.030 248.5)",
+          "oklch(73% 0.026 248.5)",
+          "oklch(85% 0.018 248.5)",
+          "oklch(95% 0.008 248.5)"
+        ]
+      },
+      "ground": {
+        "role": "neutral",
+        "displayName": "Warm Ground",
+        "tonalRamp": [
+          "oklch(15% 0.002 84.6)",
+          "oklch(27% 0.004 84.6)",
+          "oklch(38% 0.005 84.6)",
+          "oklch(50% 0.006 84.6)",
+          "oklch(62% 0.006 84.6)",
+          "oklch(73% 0.005 84.6)",
+          "oklch(85% 0.003 84.6)",
+          "oklch(95% 0.001 84.6)"
+        ]
+      },
+      "beige": {
+        "role": "neutral",
+        "displayName": "Pairing Beige",
+        "tonalRamp": [
+          "oklch(15% 0.003 84.6)",
+          "oklch(27% 0.006 84.6)",
+          "oklch(38% 0.007 84.6)",
+          "oklch(50% 0.009 84.6)",
+          "oklch(62% 0.009 84.6)",
+          "oklch(73% 0.007 84.6)",
+          "oklch(85% 0.005 84.6)",
+          "oklch(95% 0.002 84.6)"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "White Paper",
+        "tonalRamp": [
+          "oklch(15% 0.000 0.0)",
+          "oklch(27% 0.000 0.0)",
+          "oklch(38% 0.000 0.0)",
+          "oklch(50% 0.000 0.0)",
+          "oklch(62% 0.000 0.0)",
+          "oklch(73% 0.000 0.0)",
+          "oklch(85% 0.000 0.0)",
+          "oklch(95% 0.000 0.0)"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Panel Stroke",
+        "tonalRamp": [
+          "oklch(15% 0.002 97.4)",
+          "oklch(27% 0.004 97.4)",
+          "oklch(38% 0.006 97.4)",
+          "oklch(50% 0.007 97.4)",
+          "oklch(62% 0.007 97.4)",
+          "oklch(73% 0.006 97.4)",
+          "oklch(85% 0.004 97.4)",
+          "oklch(95% 0.002 97.4)"
+        ]
+      },
+      "control": {
+        "role": "neutral",
+        "displayName": "Control Stroke",
+        "tonalRamp": [
+          "oklch(15% 0.010 246.4)",
+          "oklch(27% 0.018 246.4)",
+          "oklch(38% 0.023 246.4)",
+          "oklch(50% 0.027 246.4)",
+          "oklch(62% 0.027 246.4)",
+          "oklch(73% 0.023 246.4)",
+          "oklch(85% 0.016 246.4)",
+          "oklch(95% 0.007 246.4)"
+        ]
+      },
+      "sky": {
+        "role": "primary",
+        "displayName": "Sky Blue",
+        "tonalRamp": [
+          "oklch(15% 0.018 235.9)",
+          "oklch(27% 0.034 235.9)",
+          "oklch(38% 0.044 235.9)",
+          "oklch(50% 0.052 235.9)",
+          "oklch(62% 0.052 235.9)",
+          "oklch(73% 0.044 235.9)",
+          "oklch(85% 0.031 235.9)",
+          "oklch(95% 0.013 235.9)"
+        ]
+      },
+      "sky-soft": {
+        "role": "primary",
+        "displayName": "Soft Sky",
+        "tonalRamp": [
+          "oklch(15% 0.005 235.4)",
+          "oklch(27% 0.010 235.4)",
+          "oklch(38% 0.013 235.4)",
+          "oklch(50% 0.015 235.4)",
+          "oklch(62% 0.015 235.4)",
+          "oklch(73% 0.013 235.4)",
+          "oklch(85% 0.009 235.4)",
+          "oklch(95% 0.004 235.4)"
+        ]
+      },
+      "link": {
+        "role": "primary",
+        "displayName": "Link Blue",
+        "tonalRamp": [
+          "oklch(15% 0.034 244.6)",
+          "oklch(27% 0.062 244.6)",
+          "oklch(38% 0.081 244.6)",
+          "oklch(50% 0.096 244.6)",
+          "oklch(62% 0.096 244.6)",
+          "oklch(73% 0.081 244.6)",
+          "oklch(85% 0.057 244.6)",
+          "oklch(95% 0.024 244.6)"
+        ]
+      },
+      "newer-paper": {
+        "role": "neutral",
+        "displayName": "Cool Paper",
+        "tonalRamp": [
+          "oklch(15% 0.003 241.7)",
+          "oklch(27% 0.005 241.7)",
+          "oklch(38% 0.006 241.7)",
+          "oklch(50% 0.008 241.7)",
+          "oklch(62% 0.008 241.7)",
+          "oklch(73% 0.006 241.7)",
+          "oklch(85% 0.005 241.7)",
+          "oklch(95% 0.002 241.7)"
+        ]
+      },
+      "removed-mark": {
+        "role": "neutral",
+        "displayName": "Removed Wording",
+        "tonalRamp": [
+          "oklch(15% 0.005 74.4)",
+          "oklch(27% 0.009 74.4)",
+          "oklch(38% 0.012 74.4)",
+          "oklch(50% 0.014 74.4)",
+          "oklch(62% 0.014 74.4)",
+          "oklch(73% 0.012 74.4)",
+          "oklch(85% 0.009 74.4)",
+          "oklch(95% 0.004 74.4)"
+        ]
+      },
+      "error": {
+        "role": "neutral",
+        "displayName": "Error Ink",
+        "tonalRamp": [
+          "oklch(15% 0.037 23.6)",
+          "oklch(27% 0.069 23.6)",
+          "oklch(38% 0.091 23.6)",
+          "oklch(50% 0.106 23.6)",
+          "oklch(62% 0.106 23.6)",
+          "oklch(73% 0.091 23.6)",
+          "oklch(85% 0.064 23.6)",
+          "oklch(95% 0.027 23.6)"
+        ]
+      },
+      "error-surface": {
+        "role": "neutral",
+        "displayName": "Error Surface",
+        "tonalRamp": [
+          "oklch(15% 0.005 39.4)",
+          "oklch(27% 0.009 39.4)",
+          "oklch(38% 0.012 39.4)",
+          "oklch(50% 0.014 39.4)",
+          "oklch(62% 0.014 39.4)",
+          "oklch(73% 0.012 39.4)",
+          "oklch(85% 0.008 39.4)",
+          "oklch(95% 0.004 39.4)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "View heading",
+        "purpose": "Titles the active workspace view."
+      },
+      "headline": {
+        "displayName": "Panel heading",
+        "purpose": "Titles a form, findings panel or source dialog."
+      },
+      "title": {
+        "displayName": "Section title",
+        "purpose": "Labels inset passages and other groups."
+      },
+      "body": {
+        "displayName": "Interface body",
+        "purpose": "General interface text."
+      },
+      "excerpt": {
+        "displayName": "Quoted evidence",
+        "purpose": "Policy wording in findings and the source viewer."
+      },
+      "label": {
+        "displayName": "Field label",
+        "purpose": "Names comparison inputs and mode options."
+      }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "button-color-transition",
+        "value": "140ms ease",
+        "purpose": "Transitions button background and border colors. Reduced motion removes the transition."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "compact-rail",
+        "value": "1110px"
+      },
+      {
+        "name": "stacked-panels",
+        "value": "890px"
+      },
+      {
+        "name": "stacked-evidence",
+        "value": "680px"
+      },
+      {
+        "name": "stacked-selectors",
+        "value": "430px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary action",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Runs the comparison or starts indexing.",
+      "html": "<div class=\"ds-example-button-primary\"><button class=\"ds-button ds-primary\" type=\"button\">Compare editions<svg viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.65\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4 12h15m-6-6 6 6-6 6\"/></svg></button></div>",
+      "css": ".ds-example-button-primary { font: 14px/1.5 var(--font-geist-sans, \"Geist\"), \"Segoe UI\", sans-serif; color: var(--ink, #182c41); } .ds-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; padding: 8px 13px; border: 1px solid transparent; border-radius: var(--control-radius, 6px); font-weight: 620; text-decoration: none; line-height: 1.2; transition: background-color 140ms ease, border-color 140ms ease; } .ds-button svg { width: 16px; height: 16px; } .ds-button.ds-secondary { color: var(--ink, #182c41); background: var(--surface, #fff); border-color: var(--control, #808f9d); } .ds-button.ds-secondary:hover:not(:disabled), .ds-button.ds-icon-button:hover { background: var(--sky-soft, #eaf5fc); } .ds-button.ds-primary { color: white; background: var(--navy, #142941); } .ds-button.ds-primary:hover:not(:disabled) { background: var(--navy-raised, #213b55); } .ds-button:disabled { opacity: .56; }  button, a { font: 14px/1.5 var(--font-geist-sans, \"Geist\"), \"Segoe UI\", sans-serif; } svg { flex-shrink: 0; } .ds-button { cursor: pointer; } .ds-button:disabled { cursor: default; } @media (prefers-reduced-motion: reduce) { .ds-button { transition: none; } } :focus-visible { outline: 2px solid var(--link, #205d8a); outline-offset: 3px; }"
+    },
+    {
+      "name": "Secondary action",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Selects demo editions or opens the original PDF.",
+      "html": "<div class=\"ds-example-button-secondary\"><button class=\"ds-button ds-secondary\" type=\"button\"><svg viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.65\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M6 3h8l4 4v14H6zM14 3v5h4M9 12h6m-6 4h6\"/></svg>Select demo editions</button></div>",
+      "css": ".ds-example-button-secondary { font: 14px/1.5 var(--font-geist-sans, \"Geist\"), \"Segoe UI\", sans-serif; color: var(--ink, #182c41); } .ds-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; padding: 8px 13px; border: 1px solid transparent; border-radius: var(--control-radius, 6px); font-weight: 620; text-decoration: none; line-height: 1.2; transition: background-color 140ms ease, border-color 140ms ease; } .ds-button svg { width: 16px; height: 16px; } .ds-button.ds-secondary { color: var(--ink, #182c41); background: var(--surface, #fff); border-color: var(--control, #808f9d); } .ds-button.ds-secondary:hover:not(:disabled), .ds-button.ds-icon-button:hover { background: var(--sky-soft, #eaf5fc); } .ds-button.ds-primary { color: white; background: var(--navy, #142941); } .ds-button.ds-primary:hover:not(:disabled) { background: var(--navy-raised, #213b55); } .ds-button:disabled { opacity: .56; }  button, a { font: 14px/1.5 var(--font-geist-sans, \"Geist\"), \"Segoe UI\", sans-serif; } svg { flex-shrink: 0; } .ds-button { cursor: pointer; } .ds-button:disabled { cursor: default; } @media (prefers-reduced-motion: reduce) { .ds-button { transition: none; } } :focus-visible { outline: 2px solid var(--link, #205d8a); outline-offset: 3px; }"
+    },
+    {
+      "name": "Question field",
+      "kind": "input",
+      "refersTo": "question-field",
+      "description": "Collects the comparison question with a visible label.",
+      "html": "<div class=\"ds-example-question-field\"><label class=\"ds-question-preview\"><span>Comparison question</span><input placeholder=\"Ask about a section, coverage or exclusion\"></label></div>",
+      "css": ".ds-example-question-field { font: 14px/1.5 var(--font-geist-sans, \"Geist\"), \"Segoe UI\", sans-serif; color: var(--ink, #182c41); } .ds-question-preview { max-width: 400px; } .ds-question-preview input { box-sizing: border-box; font: inherit; color: inherit; } label { display: grid; align-content: start; gap: 6px; min-width: 0; font-size: 13px; font-weight: 600; } input:not([type=radio]), select { width: 100%; min-width: 0; min-height: 40px; padding: 7px 9px; border: 1px solid var(--control, #808f9d); border-radius: var(--control-radius, 6px); background: var(--surface, #fff); font-weight: 440; } input::placeholder { color: var(--muted, #526170); } :focus-visible { outline: 2px solid var(--link, #205d8a); outline-offset: 3px; }"
+    },
+    {
+      "name": "Workspace navigation",
+      "kind": "nav",
+      "refersTo": "workspace-nav",
+      "description": "Uses a lighter navy row and sky icon for the current view.",
+      "html": "<div class=\"ds-example-workspace-nav\"><aside class=\"ds-sidebar\"><button class=\"ds-brand\" type=\"button\" aria-label=\"PolicyDiff AI home\"><svg viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.65\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M6 3h8l4 4v14H6zM14 3v5h4M9 12h6m-6 4h6\"/></svg><span>PolicyDiff <b>AI</b></span></button><nav class=\"ds-workspace-nav\" aria-label=\"Workspace\"><button type=\"button\" aria-current=\"page\"><svg viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.65\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 5h7v14H3zM14 5h7v14h-7zM5.5 9h2m9 0h2m-13 4h2m9 0h2\"/></svg>Compare</button><button type=\"button\"><svg viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.65\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M6 3h8l4 4v14H6zM14 3v5h4M9 12h6m-6 4h6\"/></svg>Documents</button><button type=\"button\"><svg viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.65\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 12a9 9 0 1 1 2.5 6.3M3 6v6h6m3-5v5l3 2\"/></svg>History</button></nav></aside></div>",
+      "css": ".ds-example-workspace-nav { font: 14px/1.5 var(--font-geist-sans, \"Geist\"), \"Segoe UI\", sans-serif; color: var(--ink, #182c41); } .ds-sidebar { position: sticky; top: 0; height: 100dvh; display: flex; flex-direction: column; background: var(--navy, #142941); color: white; padding: 27px 17px 20px; } .ds-sidebar :focus-visible { outline-color: var(--sky, #bce2fa); } .ds-brand { border: 0; background: transparent; display: flex; gap: 9px; align-items: center; padding: 0 6px; color: white; white-space: nowrap; } .ds-brand span { font-size: 18px; font-weight: 660; letter-spacing: -.04em; } .ds-brand b { color: var(--sky, #bce2fa); font-size: 12px; font-weight: 650; letter-spacing: 0; vertical-align: 1px; } .ds-workspace-nav { display: grid; gap: 5px; margin-top: 38px; } .ds-workspace-nav button { display: flex; gap: 11px; align-items: center; text-align: start; min-height: 42px; padding: 0 11px; background: transparent; border: 0; border-radius: var(--control-radius, 6px); color: #ccdae6; font-weight: 550; } .ds-workspace-nav button:hover { background: var(--navy-raised, #213b55); color: white; } .ds-workspace-nav button[aria-current] { color: white; background: #284761; } .ds-workspace-nav button[aria-current] svg { color: var(--sky, #bce2fa); } .ds-sidebar { position: static; height: auto; width: 178px; box-sizing: border-box; } .ds-brand, .ds-workspace-nav button { font: inherit; cursor: pointer; } .ds-workspace-nav button { font-weight: 550; }  :focus-visible { outline: 2px solid var(--link, #205d8a); outline-offset: 3px; }"
+    },
+    {
+      "name": "Finding status",
+      "kind": "chip",
+      "refersTo": "finding-tag",
+      "description": "Names the evidence state next to the clause reference.",
+      "html": "<div class=\"ds-example-finding-tag\"><span class=\"ds-finding-kind\">Changed</span> <span class=\"ds-finding-kind ds-review\">Needs review</span></div>",
+      "css": ".ds-example-finding-tag { font: 14px/1.5 var(--font-geist-sans, \"Geist\"), \"Segoe UI\", sans-serif; color: var(--ink, #182c41); } .ds-finding-kind { padding: 2px 6px; border-radius: 4px; background: var(--sky-soft, #eaf5fc); color: var(--navy, #142941); font-size: 11px; font-weight: 670; } .ds-finding-kind.ds-removed, .ds-finding-kind.ds-review { background: var(--beige, #eae7e1); }"
+    },
+    {
+      "name": "Document pair",
+      "kind": "card",
+      "refersTo": "pair-panel",
+      "description": "Summarizes both editions on the warm pairing surface.",
+      "html": "<div class=\"ds-example-pair-panel\"><aside class=\"ds-pair-panel\"><h2>Document pair</h2><p class=\"ds-pair-caption\">Ontario Automobile Policy (OAP 1)</p><div class=\"ds-pair-edition\"><svg viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.65\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M6 3h8l4 4v14H6zM14 3v5h4M9 12h6m-6 4h6\"/></svg><div><span>Older edition</span><strong>2022 edition</strong></div></div><div class=\"ds-pair-edition\"><svg viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.65\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M6 3h8l4 4v14H6zM14 3v5h4M9 12h6m-6 4h6\"/></svg><div><span>Newer edition</span><strong>July 2026 edition</strong></div></div></aside></div>",
+      "css": ".ds-example-pair-panel { font: 14px/1.5 var(--font-geist-sans, \"Geist\"), \"Segoe UI\", sans-serif; color: var(--ink, #182c41); } h2, h3, h4, p { margin: 0; } h2, h3, h4 { line-height: 1.24; } h2 { font-size: 17px; font-weight: 650; letter-spacing: -.018em; } h3, h4 { font-size: 14px; font-weight: 650; } .ds-pair-panel { background: var(--beige, #eae7e1); padding: 19px 17px; border-radius: var(--radius, 8px); } .ds-pair-caption { color: var(--muted, #526170); font-size: 12px; margin-top: 5px; overflow-wrap: anywhere; } .ds-pair-edition { display: flex; align-items: start; gap: 9px; margin-top: 13px; padding: 10px; background: var(--surface, #fff); border-radius: var(--control-radius, 6px); } .ds-pair-edition svg { margin-top: 3px; color: var(--link, #205d8a); } .ds-pair-edition span, .ds-pair-edition small { display: block; color: var(--muted, #526170); font-size: 11px; } .ds-pair-edition strong { display: block; margin: 1px 0; font-size: 13px; font-weight: 620; overflow-wrap: anywhere; } .ds-pair-panel { max-width: 250px; } svg { flex-shrink: 0; }"
+    },
+    {
+      "name": "Compared excerpts",
+      "kind": "custom",
+      "refersTo": "older-passage",
+      "description": "Places marked wording beside page-specific preview links.",
+      "html": "<div class=\"ds-example-older-passage\"><div class=\"ds-passages\"><section class=\"ds-passage\"><h4>Older wording</h4><p class=\"ds-quoted-text\">We must pay the <mark class=\"ds-before\">Income Replacement Benefit</mark> within ten business days.</p><a class=\"ds-source-link\" href=\"#page-33\"><svg viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.65\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M6 3h8l4 4v14H6zM14 3v5h4M9 12h6m-6 4h6\"/></svg>Preview older PDF · page 33</a></section><section class=\"ds-passage\"><h4>Newer wording</h4><p class=\"ds-quoted-text\">We must pay the <mark>Attendant Care Benefit</mark> within ten business days.</p><a class=\"ds-source-link\" href=\"#page-33\"><svg viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.65\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M6 3h8l4 4v14H6zM14 3v5h4M9 12h6m-6 4h6\"/></svg>Preview newer PDF · page 33</a></section></div></div>",
+      "css": ".ds-example-older-passage { font: 14px/1.5 var(--font-geist-sans, \"Geist\"), \"Segoe UI\", sans-serif; color: var(--ink, #182c41); } h2, h3, h4, p { margin: 0; } h2, h3, h4 { line-height: 1.24; } h2 { font-size: 17px; font-weight: 650; letter-spacing: -.018em; } h3, h4 { font-size: 14px; font-weight: 650; } .ds-passages { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 13px; } .ds-passage { min-width: 0; padding: 13px; background: var(--ground, #f3f1ed); border-radius: var(--control-radius, 6px); } .ds-passage:last-child { background: #f3f8fc; } .ds-passage h4 { margin-bottom: 8px; } .ds-quoted-text { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 13px; line-height: 1.6; } mark { background: var(--sky, #bce2fa); color: var(--navy, #142941); border-radius: 2px; } mark.before { background: #e1dad1; } .ds-source-link { display: inline-flex; gap: 5px; align-items: center; font-size: 12px; font-weight: 620; margin-top: 9px; } .ds-source-link svg { width: 13px; height: 13px; } .ds-passages { grid-template-columns: minmax(0, 1fr); } a { color: var(--link, #205d8a); text-underline-offset: 3px; } .ds-passages { margin-top: 0; } @media (max-width: 680px) { .ds-passages { grid-template-columns: minmax(0, 1fr); } } :focus-visible { outline: 2px solid var(--link, #205d8a); outline-offset: 3px; }"
+    },
+    {
+      "name": "Analysis mode",
+      "kind": "custom",
+      "refersTo": "mode-option-selected",
+      "description": "Combines a native checked radio, visible label and short description.",
+      "html": "<div class=\"ds-example-mode-option-selected\"><label class=\"ds-mode\"><input type=\"radio\" name=\"mode-preview\" checked><span><strong>Local wording comparison</strong><small>Find and show wording changes</small></span></label></div>",
+      "css": ".ds-example-mode-option-selected { font: 14px/1.5 var(--font-geist-sans, \"Geist\"), \"Segoe UI\", sans-serif; color: var(--ink, #182c41); } label { display: grid; align-content: start; gap: 6px; min-width: 0; font-size: 13px; font-weight: 600; } .ds-mode { display: flex; gap: 8px; align-items: start; padding: 10px 9px; border: 1px solid var(--control, #808f9d); border-radius: var(--control-radius, 6px); cursor: pointer; } .ds-mode:has(input:checked) { border-color: var(--link, #205d8a); background: var(--sky-soft, #eaf5fc); } .ds-mode:has(input:disabled) { border-color: var(--line, #dddcd7); background: #f8f7f5; cursor: default; } .ds-mode input { flex-shrink: 0; width: 14px; height: 14px; margin: 3px 0 0; } .ds-mode strong { display: block; font-size: 12px; font-weight: 660; } .ds-mode small { display: block; margin-top: 2px; font-size: 11px; font-weight: 430; } .ds-mode { max-width: 230px; } .ds-mode input { accent-color: var(--link, #205d8a); } .ds-mode small { color: var(--muted, #526170); } :focus-visible { outline: 2px solid var(--link, #205d8a); outline-offset: 3px; }"
+    },
+    {
+      "name": "Source viewer",
+      "kind": "custom",
+      "refersTo": "source-dialog",
+      "description": "Shows the supporting excerpt beside a rendered single-page preview and links to the original PDF.",
+      "html": "<div class=\"ds-example-source-dialog\"><section class=\"ds-viewer ds-viewer-preview\" aria-label=\"PDF source example\"><div class=\"ds-viewer-inner\"><header class=\"ds-viewer-head\"><div><span>PDF source</span><h2>Older edition · page 33</h2></div><div class=\"ds-viewer-actions\"><a class=\"ds-button ds-secondary\" href=\"#original-pdf\"><svg viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.65\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M13 4h7v7m0-7-9 9m7 0v7H4V6h7\"/></svg>Open in new tab</a><button class=\"ds-button ds-icon-button\" type=\"button\" aria-label=\"Close PDF\"><svg viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.65\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m6 6 12 12M18 6 6 18\"/></svg></button></div></header><div class=\"ds-viewer-body\"><div class=\"ds-viewer-excerpt\"><h3>Supporting excerpt</h3><p class=\"ds-quoted-text\">Applying for Benefits</p></div><div class=\"ds-viewer-page\"><svg class=\"ds-example-page\" width=\"100\" height=\"129\" viewBox=\"0 0 100 129\" role=\"img\" aria-label=\"Illustrative PDF page 33\"><path fill=\"white\" d=\"M0 0h100v129H0z\"/><path stroke=\"#526170\" stroke-width=\"1.5\" d=\"M12 16h62M12 29h76m-76 4h64m-64 4h73m-73 4h69m-69 4h76m-76 4h65\"/><text x=\"47\" y=\"120\" fill=\"#182c41\" font-size=\"5\">33</text></svg></div></div></div></section></div>",
+      "css": ".ds-example-source-dialog { font: 14px/1.5 var(--font-geist-sans, \"Geist\"), \"Segoe UI\", sans-serif; color: var(--ink, #182c41); } h2, h3, h4, p { margin: 0; } h2, h3, h4 { line-height: 1.24; } h2 { font-size: 17px; font-weight: 650; letter-spacing: -.018em; } h3, h4 { font-size: 14px; font-weight: 650; } .ds-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; padding: 8px 13px; border: 1px solid transparent; border-radius: var(--control-radius, 6px); font-weight: 620; text-decoration: none; line-height: 1.2; transition: background-color 140ms ease, border-color 140ms ease; } .ds-button svg { width: 16px; height: 16px; } .ds-button.ds-secondary { color: var(--ink, #182c41); background: var(--surface, #fff); border-color: var(--control, #808f9d); } .ds-button.ds-secondary:hover:not(:disabled), .ds-button.ds-icon-button:hover { background: var(--sky-soft, #eaf5fc); } .ds-button.ds-primary { color: white; background: var(--navy, #142941); } .ds-button.ds-primary:hover:not(:disabled) { background: var(--navy-raised, #213b55); } .ds-button:disabled { opacity: .56; }  button, a { font: 14px/1.5 var(--font-geist-sans, \"Geist\"), \"Segoe UI\", sans-serif; } svg { flex-shrink: 0; } .ds-button { cursor: pointer; } .ds-button:disabled { cursor: default; } @media (prefers-reduced-motion: reduce) { .ds-button { transition: none; } }.ds-quoted-text { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 13px; line-height: 1.6; } .ds-viewer { width: min(1120px, calc(100% - 32px)); height: min(850px, calc(100dvh - 32px)); max-height: none; padding: 0; border: 0; border-radius: var(--radius, 8px); color: var(--ink, #182c41); } .ds-viewer::backdrop { background: rgb(20 41 65 / 62%); } .ds-viewer-inner { display: grid; grid-template-rows: auto minmax(0, 1fr); height: 100%; } .ds-viewer-head { display: flex; gap: 12px; align-items: center; justify-content: space-between; padding: 13px 16px; background: var(--navy, #142941); color: white; } .ds-viewer-head span { color: #c4d6e5; font-size: 12px; } .ds-viewer-actions { display: flex; align-items: center; gap: 7px; } .ds-viewer-actions .ds-button { min-height: 36px; white-space: nowrap; } .ds-viewer-actions :focus-visible { outline-color: var(--sky, #bce2fa); } .ds-viewer-actions .ds-icon-button { color: white; background: var(--navy-raised, #213b55); width: 36px; padding: 0; } .ds-viewer-actions .ds-icon-button:hover { color: var(--navy, #142941); } .ds-viewer-body { display: grid; grid-template-columns: 250px minmax(0, 1fr); min-height: 0; } .ds-viewer-excerpt { overflow: auto; background: var(--ground, #f3f1ed); padding: 16px; } .ds-viewer-excerpt h3 { margin-bottom: 8px; } .ds-viewer-page { overflow: auto; padding: 16px; background: #dfe6eb; } .ds-viewer-page p { padding: 12px; text-align: center; color: var(--muted, #526170); } .ds-viewer-page img { display: block; width: 100%; height: auto; max-width: 830px; margin-inline: auto; background: white; } .ds-viewer-preview { width: 100%; height: auto; overflow: hidden; } .ds-viewer-preview .ds-viewer-body { grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); } .ds-example-page { display: block; margin-inline: auto; } :focus-visible { outline: 2px solid var(--link, #205d8a); outline-offset: 3px; } @media (max-width: 680px) { .ds-viewer-head { flex-wrap: wrap; } .ds-viewer-preview .ds-viewer-body { grid-template-columns: minmax(0, 1fr); } }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Policy Comparison Workbench",
+    "overview": "PolicyDiff AI is a professional reading workspace. A dark navy frame anchors navigation, with a warm neutral canvas behind white working panels. The beige-grey document pair keeps the selected editions in view while the user works through the comparison setup.\n\nFindings give the clause reference, change label and short explanation first, then place the older and newer wording together. The source viewer carries the same hierarchy into the original document, keeping the supporting excerpt close to the rendered PDF page.",
+    "keyCharacteristics": [
+      "Navy navigation with white working surfaces and a beige-grey document pair.",
+      "Compact Geist typography with distinct roles for headings, evidence and metadata.",
+      "Older-to-newer reading order with visible labels, word-level marks and page-specific source links."
+    ],
+    "rules": [
+      {
+        "name": "The Evidence Mark Rule",
+        "body": "Use a warm fill for the older phrase and sky for the newer phrase when a paired replacement has shared wording on both sides. Leave unmatched excerpt edges unmarked.",
+        "section": "colors"
+      }
+    ],
+    "dos": [
+      "Do keep the older edition first and the newer edition second in both the paired setup and the evidence layout.",
+      "Do place the source page link inside the passage it supports.",
+      "Do pair color with explicit edition and status labels."
+    ],
+    "donts": []
+  }
+}

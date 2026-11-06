@@ -1,0 +1,302 @@
+[
+  {
+    "id": 1,
+    "question": "How did the procedures and deadlines for applying for accident benefits change?",
+    "old": "4.3.1",
+    "next": "4.2.1",
+    "oldPage": 33,
+    "newPage": 33,
+    "expected": "changed",
+    "note": "Application procedures moved from 4.3.1 to 4.2.1."
+  },
+  {
+    "id": 2,
+    "question": "How did the process for choosing among multiple weekly benefits change?",
+    "old": "4.3.2",
+    "next": "4.2.2",
+    "oldPage": 34,
+    "newPage": 34,
+    "expected": "changed",
+    "note": "The benefit election provision was renumbered and reworded."
+  },
+  {
+    "id": 3,
+    "question": "What changed about the cost of damage covered by direct compensation for property damage?",
+    "old": "6.2",
+    "next": "6.2",
+    "oldPage": 43,
+    "newPage": 43,
+    "expected": "changed",
+    "note": "The newer coverage wording introduces an election condition."
+  },
+  {
+    "id": 4,
+    "question": "What changed in the introductory text about when direct compensation for property damage applies?",
+    "old": "6.1",
+    "next": "6.1",
+    "oldPage": 43,
+    "newPage": 43,
+    "expected": "changed",
+    "note": "The introductory wording now discusses electing to forgo recovery."
+  },
+  {
+    "id": 5,
+    "question": "What changed in the general introduction to the insured's responsibilities?",
+    "old": "1.4",
+    "next": "1.4",
+    "oldPage": 10,
+    "newPage": 10,
+    "expected": "changed",
+    "note": "The introductory paragraphs differ."
+  },
+  {
+    "id": 6,
+    "question": "How did the wording about where to make a claim change?",
+    "old": "1.5",
+    "next": "1.5",
+    "oldPage": 11,
+    "newPage": 11,
+    "expected": "changed",
+    "note": "The warning and claim language appear in different order."
+  },
+  {
+    "id": 7,
+    "question": "How is the territory where the automobile is covered described?",
+    "old": "1.2",
+    "next": "1.2",
+    "oldPage": 8,
+    "newPage": 8,
+    "expected": "unchanged",
+    "note": "The territory clause has the same extracted wording."
+  },
+  {
+    "id": 8,
+    "question": "How does the rule for installment payment of premiums change?",
+    "old": "1.6.3",
+    "next": "1.6.3",
+    "oldPage": 12,
+    "newPage": 12,
+    "expected": "unchanged",
+    "note": "The monthly premium option wording matches."
+  },
+  {
+    "id": 9,
+    "question": "How soon does the insurer pay a legitimate claim after receiving proof of loss?",
+    "old": "1.6.1",
+    "next": "1.6.1",
+    "oldPage": 12,
+    "newPage": 12,
+    "expected": "unchanged",
+    "note": "The general payment of claims wording matches."
+  },
+  {
+    "id": 10,
+    "question": "Can I end my coverage at my own request, and what changed in that rule?",
+    "old": "1.7.1",
+    "next": "1.7.1",
+    "oldPage": 13,
+    "newPage": 13,
+    "expected": "unchanged",
+    "note": "The policyholder cancellation wording matches."
+  },
+  {
+    "id": 11,
+    "question": "Did the exclusions for garage employees change?",
+    "old": "1.8.4",
+    "next": "1.8.4",
+    "oldPage": 16,
+    "newPage": 16,
+    "expected": "unchanged",
+    "note": "The garage-worker exclusion wording matches."
+  },
+  {
+    "id": 12,
+    "question": "What changed in the rule about drivers excluded or using the vehicle without permission?",
+    "old": "1.8.2",
+    "next": "1.8.2",
+    "oldPage": 15,
+    "newPage": 15,
+    "expected": "unchanged",
+    "note": "The excluded-driver subsection matches."
+  },
+  {
+    "id": 13,
+    "question": "How do the editions differ about notifying the insurer of significant changes in risk?",
+    "old": "1.4.1",
+    "next": "1.4.1",
+    "oldPage": 10,
+    "newPage": 10,
+    "expected": "unchanged",
+    "note": "The notice-of-risk clause matches."
+  },
+  {
+    "id": 14,
+    "question": "What changed about informing the insurer of a new lien or mortgage?",
+    "old": "1.4.3",
+    "next": "1.4.3",
+    "oldPage": 11,
+    "newPage": 11,
+    "expected": "unchanged",
+    "note": "The new encumbrance notification wording matches."
+  },
+  {
+    "id": 15,
+    "question": "Did the duty to report an accident involving injury or property damage change?",
+    "old": "1.4.4",
+    "next": "1.4.4",
+    "oldPage": 11,
+    "newPage": 11,
+    "expected": "unchanged",
+    "note": "The accident reporting duty matches."
+  },
+  {
+    "id": 16,
+    "question": "How does coverage for a newly acquired replacement vehicle compare?",
+    "old": "2.2.1",
+    "next": "2.2.1",
+    "oldPage": 18,
+    "newPage": 18,
+    "expected": "unchanged",
+    "note": "The newly acquired automobile subsection matches."
+  },
+  {
+    "id": 17,
+    "question": "What changes for a temporary replacement automobile when the described car is out of service?",
+    "old": "2.2.2",
+    "next": "2.2.2",
+    "oldPage": 18,
+    "newPage": 18,
+    "expected": "unchanged",
+    "note": "The temporary substitute subsection matches."
+  },
+  {
+    "id": 18,
+    "question": "Do the provisions for radioactive contamination and nuclear hazards in liability coverage differ?",
+    "old": "3.5.3",
+    "next": "3.5.3",
+    "oldPage": 30,
+    "newPage": 30,
+    "expected": "changed",
+    "note": "The extracted nuclear hazards clause differs."
+  },
+  {
+    "id": 19,
+    "question": "Did the liability exclusion for damage to property being transported change?",
+    "old": "3.5.1",
+    "next": "3.5.1",
+    "oldPage": 29,
+    "newPage": 29,
+    "expected": "unchanged",
+    "note": "The property exclusion wording matches."
+  },
+  {
+    "id": 20,
+    "question": "What is different in the definition of an uninsured automobile?",
+    "old": "5.1.2",
+    "next": "5.1.2",
+    "oldPage": 35,
+    "newPage": 35,
+    "expected": "unchanged",
+    "note": "The definition of an uninsured automobile matches."
+  },
+  {
+    "id": 21,
+    "question": "Did the definition of an unidentified automobile change for hit-and-run cases?",
+    "old": "5.1.3",
+    "next": "5.1.3",
+    "oldPage": 35,
+    "newPage": 35,
+    "expected": "unchanged",
+    "note": "The definition of an unidentified automobile matches."
+  },
+  {
+    "id": 22,
+    "question": "Do the medical examination requirements change for uninsured automobile claims?",
+    "old": "5.3.6",
+    "next": "5.3.6",
+    "oldPage": 38,
+    "newPage": 38,
+    "expected": "unchanged",
+    "note": "The medical examination provision matches."
+  },
+  {
+    "id": 23,
+    "question": "How did the process for resolving disputes by arbitration change in uninsured coverage?",
+    "old": "5.6.2",
+    "next": "5.6.2",
+    "oldPage": 40,
+    "newPage": 40,
+    "expected": "unchanged",
+    "note": "The uninsured coverage arbitration clause matches."
+  },
+  {
+    "id": 24,
+    "question": "Does the deadline to sue for loss or damage to the automobile differ under uninsured coverage?",
+    "old": "5.9.2",
+    "next": "5.9.2",
+    "oldPage": 42,
+    "newPage": 42,
+    "expected": "unchanged",
+    "note": "The uninsured property action time-limit wording matches."
+  },
+  {
+    "id": 25,
+    "question": "Does the way the insurer calculates the degree of fault change under direct compensation?",
+    "old": "6.4.1",
+    "next": "6.4.1",
+    "oldPage": 44,
+    "newPage": 44,
+    "expected": "unchanged",
+    "note": "The fault determination wording matches."
+  },
+  {
+    "id": 26,
+    "question": "Where does the election not to recover appear under direct compensation for property damage?",
+    "old": null,
+    "next": "6.4.3",
+    "oldPage": null,
+    "newPage": 46,
+    "expected": "review",
+    "note": "The numbered election provision has no counterpart in the older edition."
+  },
+  {
+    "id": 27,
+    "question": "What changed in the optional loss-of-use benefit after theft?",
+    "old": "7.4.4",
+    "next": "7.4.4",
+    "oldPage": 55,
+    "newPage": 55,
+    "expected": "unchanged",
+    "note": "The theft loss-of-use wording matches."
+  },
+  {
+    "id": 28,
+    "question": "What does section 99.9 say about drone liability?",
+    "old": null,
+    "next": null,
+    "oldPage": null,
+    "newPage": null,
+    "expected": "review",
+    "note": "No such section exists in these PDFs."
+  },
+  {
+    "id": 29,
+    "question": "Is there a section 88.1 about losses caused by software subscriptions?",
+    "old": null,
+    "next": null,
+    "oldPage": null,
+    "newPage": null,
+    "expected": "review",
+    "note": "No such section exists in these PDFs."
+  },
+  {
+    "id": 30,
+    "question": "How did section 77.4 change the waiting period for dental claims?",
+    "old": null,
+    "next": null,
+    "oldPage": null,
+    "newPage": null,
+    "expected": "review",
+    "note": "No such section exists in these PDFs."
+  }
+]

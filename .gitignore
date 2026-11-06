@@ -1,0 +1,16 @@
+node_modules/
+.next/
+next-env.d.ts
+*.tsbuildinfo
+.python/
+.venv/
+.env*
+!.env.example
+.data/
+test-results/
+playwright-report/
+.taste-skill/
+__pycache__/
+.impeccable/review/
+.impeccable/questions/
+.agents/skills/impeccable/scripts/bin/
