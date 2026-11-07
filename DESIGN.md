@@ -150,7 +150,7 @@ Findings give the clause reference, change label and short explanation first, th
 ### Primary
 
 - **Deep Navy** (`navy`) anchors navigation, the primary action and the source viewer header. Raised and current shades identify hover and the current workspace destination.
-- **Sky Blue** (`sky`) marks inserted wording, text selection and keyboard focus on dark surfaces. **Soft Sky** (`sky-soft`) backs selected options, current filters and changed or added labels.
+- **Sky Blue** (`sky`) marks text selection and keyboard focus on dark surfaces. **Soft Sky** (`sky-soft`) backs selected options, current filters and changed or added labels.
 - **Link Blue** (`link`) identifies source links, field focus, selected control borders and document icons.
 
 ### Neutral
@@ -159,7 +159,7 @@ Findings give the clause reference, change label and short explanation first, th
 - **Warm Ground** (`ground`) frames the workspace and backs older passages. **Pairing Beige** (`beige`) groups the document pair and backs neutral counts and review labels.
 - **Cool Paper** (`newer-paper`) gives newer passages a subtle blue tint, with a stronger sky fill reserved for inserted words.
 - **Ink** (`ink`) carries primary text. **Slate** (`muted`) carries descriptions, captions and metadata. Use the soft `line` for panel boundaries and the stronger `control` stroke for fields and outlined actions.
-- **Removed Wording** (`removed-mark`) uses a warm fill on the older wording. The error palette pairs `error` ink with `error-surface` for failed states.
+- **Marker Yellow** (`marker`) highlights changed words in both the older and newer wording. The error palette pairs `error` ink with `error-surface` for failed states.
 
 **The Evidence Mark Rule.** Use yellow marker (`#ffeb3b`) with dark ink for changed words in both editions. The older/newer labels and surfaces identify the side. Compare full matched sections in document order before projecting highlights back into the page-bound excerpts, including additions, removals and expanded excerpts. Suppress unchanged moved excerpts and leave insufficient-evidence findings unmarked. Keep source text intact and explain the yellow mark with a short legend.
 
