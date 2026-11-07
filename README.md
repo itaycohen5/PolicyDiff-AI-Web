@@ -73,7 +73,7 @@ The evaluation reports original-question outcomes separately from targeted secti
 
 ## Deployment
 
-See the [Hebrew Vercel deployment guide](docs/DEPLOYMENT.he.md) for the prepared public preview and the remaining Supabase connection step. The in-app **How to use** guide supports English and Hebrew. `Dockerfile.vercel` packages Next.js and Python for Vercel's beta Container Runtime, with `fra1` selected in `vercel.json`.
+See the [Hebrew Vercel deployment guide](docs/DEPLOYMENT.he.md) for the Supabase-backed production workspace and read-only previews. Production uploads and live ClauseLens require the owner's private workspace access code. The in-app **How to use** guide supports English and Hebrew. `Dockerfile.vercel` packages Next.js, Python and the public database CA certificate for Vercel's beta Container Runtime, with `fra1` selected in `vercel.json`.
 
 `POLICYDIFF_STATIC_DEMO=1` serves only the checked-in public OAP 1 example and its previously generated AI explanation. This preview makes no live model calls and accepts no personal uploads. Full cloud mode requires a shared `DATABASE_URL`, a session-signing secret and a private upload access code. Its per-browser workspaces expire after one hour of inactivity, and expired data is removed on subsequent cleanup requests. See the deployment guide for exact limits and deletion behavior.
 

@@ -27,7 +27,7 @@ async function openStore(): Promise<Store> {
   if (process.env.DATABASE_URL) {
     const pool = new Pool({
       connectionString: process.env.DATABASE_URL,
-      max: 8,
+      max: process.env.POLICYDIFF_CLOUD_MODE === "1" ? 1 : 8,
       connectionTimeoutMillis: 10_000,
       query_timeout: 65_000,
       statement_timeout: 60_000,
