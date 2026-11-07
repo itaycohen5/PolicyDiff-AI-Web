@@ -1,14 +1,17 @@
 import { expect, test } from "@playwright/test";
 import { textPdf } from "../fixtures";
 
-test("load both OAP editions, compare, open a source page and recover saved history", async ({ page, request }) => {
+test("load both OAP editions, compare, open a source page and recover saved history", async ({ page, request }, testInfo) => {
   await page.goto("/");
   await page.getByRole("button", { name: "Load demo editions" }).click();
   await expect(page.getByText("Demo editions loaded.", { exact: false })).toBeVisible({ timeout: 120_000 });
+  await expect(page.getByRole("radio")).toHaveCount(2);
+  await expect(page.getByRole("radio", { name: /ClauseLens/ })).toBeDisabled();
   await page.getByRole("button", { name: "Compare editions" }).click();
   const row = page.getByRole("article", { name: "4.3.1 → 4.2.1 Changed" });
   await expect(row).toBeVisible({ timeout: 30_000 });
   await expect(row.getByText("Section renumbered.", { exact: false })).toBeVisible();
+  await expect(row.getByRole("heading", { name: "ClauseLens AI explanation" })).toHaveCount(0);
   await expect(row.locator("mark").filter({ hasText: /Attendant Care Benefit/ })).toHaveCount(0);
   const source = row.getByRole("link", { name: /Preview older PDF/ }).first();
   const href = await source.getAttribute("href");
@@ -27,10 +30,13 @@ test("load both OAP editions, compare, open a source page and recover saved hist
   await page.getByRole("button", { name: "History", exact: true }).click();
   await page.getByRole("button", { name: "What changed in section 4.2.1?" }).click();
   await expect(row).toBeVisible();
+  await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
+  await page.screenshot({ path: testInfo.outputPath("desktop.png"), fullPage: true });
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(row.getByRole("region", { name: "Older wording" })).toBeVisible();
   await expect(row.getByRole("region", { name: "Newer wording" })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(390);
+  await page.screenshot({ path: testInfo.outputPath("mobile.png"), fullPage: true });
 });
 
 test("upload a text PDF and show a retry state for a PDF without selectable text", async ({ page }) => {

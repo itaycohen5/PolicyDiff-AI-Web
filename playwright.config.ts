@@ -9,6 +9,6 @@ export default defineConfig({
     command: "npm run start -- --port 3418",
     url: "http://127.0.0.1:3418",
     timeout: 120_000,
-    env: { POLICYDIFF_DATA_DIR: "memory://", DATABASE_URL: "", OPENAI_API_KEY: "", POLICYDIFF_DEMO_ONLY: "0" },
+    env: { POLICYDIFF_DATA_DIR: "memory://", DATABASE_URL: "", OPENROUTER_API_KEY: "", POLICYDIFF_DEMO_ONLY: "0" },
   },
 });

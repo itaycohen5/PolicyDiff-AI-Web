@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { diffWordsWithSpace } from "diff";
 import { useEffect, useRef, useState } from "react";
-import type { Comparison, Finding, Kind, Source } from "@/lib/contracts";
+import { analysisModeLabels, type Comparison, type Finding, type Kind, type Source } from "@/lib/contracts";
 import { ComparisonDiagram, Icon } from "./icons";
 
 const statusText: Record<Kind, string> = { added: "Added", removed: "Removed", changed: "Changed", review: "Needs review" };
@@ -28,7 +28,7 @@ function excerptDiff(older: string, newer: string) {
   return boundedEdits.size ? { parts, boundedEdits } : undefined;
 }
 
-function FindingRow({ finding, local, onSource }: { finding: Finding; local: boolean; onSource: (source: Source) => void }) {
+function FindingRow({ finding, aiRequested, onSource }: { finding: Finding; aiRequested: boolean; onSource: (source: Source) => void }) {
   const older = finding.sources.filter((source) => source.side === "old");
   const newer = finding.sources.filter((source) => source.side === "new");
   const passages = [{ label: "Older wording", sources: older }, { label: "Newer wording", sources: newer }];
@@ -38,7 +38,15 @@ function FindingRow({ finding, local, onSource }: { finding: Finding; local: boo
     <div className="finding-heading">
       <h3>{finding.section}</h3><span className={"finding-kind " + finding.kind}>{statusText[finding.kind]}</span>
     </div>
-    <p className="finding-description">{local && finding.kind === "changed"
+    {finding.ai_explanation && finding.ai_context_complete && <div className="lens-frame lens-explanation">
+      <h4 className="lens-title"><Icon name="spark" />{analysisModeLabels.openrouter} <span>AI explanation · Review against sources</span></h4>
+      <p>{finding.ai_explanation}</p>
+    </div>}
+    {finding.ai_explanation && !finding.ai_context_complete && <p className="ai-unavailable"><Icon name="info" />
+      This saved AI explanation used partial excerpts. Run the comparison again to review the full section.</p>}
+    {aiRequested && !finding.ai_explanation && <p className="ai-unavailable"><Icon name="info" />
+      No AI explanation was accepted for this finding. Review the source wording below.</p>}
+    <p className="finding-description">{finding.kind === "changed"
       ? finding.description.replace(/Edited passage: .*/s, "Compare the matched excerpts and verify the wording in both PDFs.")
       : finding.description}</p>
     <div className="passages">{passages.map(({ label, sources }, side) => <section className="passage" key={label} aria-label={label}>
@@ -66,7 +74,9 @@ function FindingRow({ finding, local, onSource }: { finding: Finding; local: boo
 export function Findings({ comparison, pending, canCompare, onSource }: {
   comparison?: Comparison; pending: boolean; canCompare: boolean; onSource: (source: Source) => void;
 }) {
-  const [reviewOnly, setReviewOnly] = useState(false);
+  const [filter, setFilter] = useState({ comparisonId: comparison?.id, reviewOnly: false });
+  const reviewOnly = filter.comparisonId === comparison?.id && filter.reviewOnly;
+  const setReviewOnly = (value: boolean) => setFilter({ comparisonId: comparison?.id, reviewOnly: value });
   const heading = useRef<HTMLHeadingElement>(null);
   const comparisonId = comparison?.id;
   useEffect(() => {
@@ -81,6 +91,7 @@ export function Findings({ comparison, pending, canCompare, onSource }: {
     <div className="results-header">
       <div><h2 id="findings" ref={heading} tabIndex={-1}>Findings</h2>
         <p>{comparison ? comparison.old_label + " → " + comparison.new_label : "Side-by-side wording and source evidence."}</p>
+        {comparison && <p className="scope-note">Results cover up to 10 matched sections for this question.</p>}
       </div>
       {comparison && <span className="result-count">{findings.length} {findings.length === 1 ? "finding" : "findings"}</span>}
     </div>
@@ -96,15 +107,24 @@ export function Findings({ comparison, pending, canCompare, onSource }: {
     </div>}
     {!pending && comparison && <>
       <div className="result-context">
-        <p><strong>{comparison.question}</strong><span>{comparison.mode === "openai" ? "OpenAI explanation" : "Local comparison"}</span></p>
+        <p><strong>{comparison.question}</strong><span>{analysisModeLabels[comparison.mode]}</span></p>
         {reviewCount > 0 && <div className="filters" aria-label="Filter findings">
           <button type="button" aria-pressed={!reviewOnly} onClick={() => setReviewOnly(false)}>All {findings.length}</button>
           <button type="button" aria-pressed={reviewOnly} onClick={() => setReviewOnly(true)}>Needs review {reviewCount}</button>
         </div>}
       </div>
-      {findings.length ? visible.map((finding) => <FindingRow key={finding.id} finding={finding} local={comparison.mode === "local"} onSource={onSource} />) :
-        <div className="result-state"><Icon name="check" width={26} height={26} />
-          <h3>No wording changes found</h3><p>The matched sections had the same wording.</p></div>}
+      {(comparison.unchanged_sections ?? []).length > 0 && <div className="unchanged-sections">
+        <h3>Compared without wording changes</h3>
+        <ul aria-label="Sections without wording changes">{comparison.unchanged_sections.map((section) => <li key={section}>{section}</li>)}</ul>
+      </div>}
+      {visible.length ? visible.map((finding) => <FindingRow key={finding.id} finding={finding} aiRequested={comparison.mode === "openrouter"} onSource={onSource} />) :
+        reviewOnly ? <div className="result-state">
+          <h3>No findings need review</h3><p>Show all findings to return to the comparison.</p>
+          <button className="button secondary" type="button" onClick={() => setReviewOnly(false)}>Show all findings</button>
+        </div> : <div className="result-state"><Icon name="check" width={26} height={26} />
+          <h3>{comparison.unchanged_sections?.length ? "No wording differences in matched sections" : "No recorded findings"}</h3>
+          <p>{comparison.unchanged_sections?.length ? "The sections retrieved for this question had matching wording."
+            : "This saved comparison has no section-level outcome record. Run it again to check the evidence."}</p></div>}
     </>}
   </section>;
 }

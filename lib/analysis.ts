@@ -1,7 +1,7 @@
 import type { Kind } from "./contracts";
 import type { Chunk } from "./retrieval";
 
-export type Candidate = { section: string; kind: Kind; description: string; old: Chunk[]; next: Chunk[] };
+export type Candidate = { section: string; kind: Kind; description: string; aiExplanation?: string; old: Chunk[]; next: Chunk[] };
 const normalize = (body: string) => body.normalize("NFKC").replace(/[’‘]/g, "'").replace(/[“”]/g, '"')
   .replace(/[–—]/g, "-").replace(/\s+/g, " ").trim();
 const compact = (body: string) => normalize(body).replace(/\s/g, "");
@@ -44,6 +44,12 @@ function describeChange(old: Chunk, next: Chunk) {
   return "Edited passage: “" + preview(before) + "” → “" + preview(after) + "”.";
 }
 
+// Focus on the changed passage, retaining the full section for source inspection and AI context.
+function focus(chunks: Chunk[], index: number) {
+  const start = Math.min(index, chunks.length - 1);
+  return [...chunks.slice(start, start + 2), ...chunks.slice(0, start), ...chunks.slice(start + 2)];
+}
+
 export function makeCandidates(sections: string[], older: Chunk[], newer: Chunk[], rankedOld: Chunk[], rankedNew: Chunk[]) {
   const oldGroups = grouped(older);
   const newGroups = grouped(newer);
@@ -68,14 +74,21 @@ export function makeCandidates(sections: string[], older: Chunk[], newer: Chunk[
     } else if (!old.length || !next.length) {
       rows.push({
         section: requested, kind: "review", description: "A corresponding section was not found in one edition. Check for renumbering or missing text.",
-        old: old.slice(0, 2), next: next.slice(0, 2),
+        old, next,
+      });
+    } else if (title(old) !== title(next) && !reserved(old) && !reserved(next)) {
+      rows.push({
+        section: requested, kind: "review",
+        description: "This section number has different headings. A unique corresponding section could not be confirmed.",
+        old, next,
       });
     } else {
       const renumbered = oldSection !== newSection;
       const same = compact(stripSection(old.map((item) => item.body).join(" "))) === compact(stripSection(next.map((item) => item.body).join(" ")));
       if (same && !renumbered) continue;
-      const first = old.findIndex((item, index) => compact(stripSection(item.body)) !== compact(stripSection(next[index]?.body || "")));
-      const start = first === -1 ? 0 : first;
+      const first = Array.from({ length: Math.max(old.length, next.length) }, (_, index) => index)
+        .find((index) => compact(stripSection(old[index]?.body || "")) !== compact(stripSection(next[index]?.body || ""))) ?? 0;
+      const start = first;
       const oldStart = Math.min(start, old.length - 1);
       const newStart = Math.min(start, next.length - 1);
       const kind = reserved(old) && !reserved(next) ? "added" : reserved(next) && !reserved(old) ? "removed" : "changed";
@@ -85,15 +98,18 @@ export function makeCandidates(sections: string[], older: Chunk[], newer: Chunk[
           : kind === "removed" ? "The newer edition explicitly marks this section as reserved or deleted."
             : (renumbered ? "Section renumbered. " : "") + (same ? "The extracted wording matches."
               : describeChange(old[oldStart], next[newStart])),
-        old: old.slice(oldStart, oldStart + 2),
-        next: next.slice(newStart, newStart + 2),
+        old: focus(old, oldStart),
+        next: focus(next, newStart),
       });
     }
     if (rows.length === 10) break;
   }
-  if (!sections.length && (rankedOld.length || rankedNew.length)) {
+  if (!sections.length) {
     rows.push({
-      section: "Unnumbered text", kind: "review", description: "Relevant text was retrieved without comparable section numbers.",
+      section: "Unconfirmed match", kind: "review",
+      description: rankedOld.length || rankedNew.length
+        ? "Text was retrieved without comparable section numbers. Review the excerpts before drawing conclusions."
+        : "No relevant section was found for this question. Try a specific topic or section number.",
       old: rankedOld.slice(0, 2), next: rankedNew.slice(0, 2),
     });
   }
@@ -104,11 +120,12 @@ export type Proposed = { row: number; explanation: string; oldIds: string[]; new
 
 export function applyExplanations(candidates: Candidate[], proposals: Proposed[]) {
   return candidates.map((candidate, row) => {
-    const proposal = proposals.find((item) => item.row === row);
-    if (!proposal || candidate.kind !== "changed") return candidate;
+    const matchesForRow = proposals.filter((item) => item.row === row);
+    if (matchesForRow.length !== 1 || candidate.kind !== "changed") return candidate;
+    const proposal = matchesForRow[0];
     const matches = (ids: string[], chunks: Chunk[]) =>
-      ids.length === chunks.length && new Set(ids).size === ids.length && chunks.every((chunk) => ids.includes(chunk.id));
+      chunks.length > 0 && ids.length === chunks.length && new Set(ids).size === ids.length && chunks.every((chunk) => ids.includes(chunk.id));
     if (!matches(proposal.oldIds, candidate.old) || !matches(proposal.newIds, candidate.next)) return candidate;
-    return { ...candidate, description: proposal.explanation };
+    return { ...candidate, aiExplanation: proposal.explanation };
   });
 }

@@ -9,7 +9,9 @@ export function explicitSections(query: string) {
 }
 
 export async function prepareQuery(question: string, hybrid: boolean) {
-  return { question, sections: explicitSections(question), vector: hybrid ? vectorLiteral((await embeddings([question]))[0]) : null };
+  const topic = question.replace(/\b(?:change[ds]?|differences?|compare[ds]?|older|newer|versions?|editions?|polic(?:y|ies)|sections?|between)\b/gi, " ")
+    .replace(/\s+/g, " ").trim();
+  return { question: topic, sections: explicitSections(question), vector: hybrid ? vectorLiteral((await embeddings([topic]))[0]) : null };
 }
 
 export async function retrieve(store: Sql, version: string, query: Awaited<ReturnType<typeof prepareQuery>>, limit = 12) {
@@ -21,10 +23,12 @@ export async function retrieve(store: Sql, version: string, query: Awaited<Retur
         ORDER BY ts_rank_cd(terms, (SELECT value FROM terms_query)) DESC, ordinal
       ) AS rank
       FROM chunks WHERE version_id = $1 AND terms @@ (SELECT value FROM terms_query)
+      ORDER BY ts_rank_cd(terms, (SELECT value FROM terms_query)) DESC, ordinal
       LIMIT 30
     ), semantic AS (
       SELECT id, row_number() OVER (ORDER BY embedding <=> $3::vector, ordinal) AS rank
-      FROM chunks WHERE version_id = $1 AND $3::vector IS NOT NULL
+      FROM chunks WHERE version_id = $1 AND $3::vector IS NOT NULL AND embedding <=> $3::vector <= 0.65
+      ORDER BY embedding <=> $3::vector, ordinal
       LIMIT 30
     )
     SELECT ${fields.split(", ").map((field) => "c." + field).join(", ")}

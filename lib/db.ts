@@ -20,8 +20,22 @@ function fromPg(client: Pool | PoolClient): Sql {
 }
 
 async function openStore(): Promise<Store> {
+  if (process.env.POLICYDIFF_CLOUD_MODE === "1" && process.env.POLICYDIFF_STATIC_DEMO !== "1" &&
+      !process.env.DATABASE_URL && process.env.POLICYDIFF_DATA_DIR !== "memory://") {
+    throw new Error("Hosted workspaces require a shared DATABASE_URL. Complete the database connection before enabling uploads.");
+  }
   if (process.env.DATABASE_URL) {
-    const pool = new Pool({ connectionString: process.env.DATABASE_URL, max: 8 });
+    const pool = new Pool({
+      connectionString: process.env.DATABASE_URL,
+      max: 8,
+      connectionTimeoutMillis: 10_000,
+      query_timeout: 65_000,
+      statement_timeout: 60_000,
+      idle_in_transaction_session_timeout: 60_000,
+    });
+    pool.on("error", (error) => {
+      console.error("Idle database connection failed", error.name);
+    });
     return {
       ...fromPg(pool),
       async transaction(work) {
@@ -57,14 +71,20 @@ async function initialize() {
     await store.transaction(async (tx) => {
       await tx.query("SELECT pg_advisory_xact_lock(872514)");
       await tx.query("CREATE TABLE IF NOT EXISTS schema_migrations (id integer PRIMARY KEY)");
-      const applied = await tx.query("SELECT id FROM schema_migrations WHERE id = 1");
-      if (applied.rows.length) return;
-      const sql = await readFile(path.resolve("db/001_initial.sql"), "utf8");
-      // The first migration contains plain DDL statements and no internal semicolons.
-      for (const statement of sql.split(";").map((part) => part.trim()).filter(Boolean)) {
-        await tx.query(statement);
+      const applied = await tx.query<{ id: number }>("SELECT id FROM schema_migrations");
+      const appliedIds = new Set(applied.rows.map(({ id }) => id));
+      const migrations = [[1, "001_initial.sql"], [2, "002_openrouter_mode.sql"], [3, "003_ai_explanation.sql"],
+        [4, "004_source_order.sql"], [5, "005_ai_context.sql"], [6, "006_unchanged_sections.sql"],
+        [7, "007_hosted_workspaces.sql"]] as const;
+      for (const [id, file] of migrations) {
+        if (appliedIds.has(id)) continue;
+        const sql = await readFile(path.resolve("db", file), "utf8");
+        // Migrations contain plain DDL statements and no internal semicolons.
+        for (const statement of sql.split(";").map((part) => part.trim()).filter(Boolean)) {
+          await tx.query(statement);
+        }
+        await tx.query("INSERT INTO schema_migrations VALUES ($1)", [id]);
       }
-      await tx.query("INSERT INTO schema_migrations VALUES (1)");
     });
     return store;
   } catch (error) {

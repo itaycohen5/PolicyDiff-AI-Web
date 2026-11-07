@@ -7,8 +7,9 @@ import { db } from "./db";
 import { embeddings, vectorLiteral } from "./embedding";
 import { RequestError } from "./errors";
 import type { Policy, Status, UploadInput, Version } from "./contracts";
+import { cloudMode, demoOnly, localWorkspaceId, workspaceId } from "./workspace";
 
-export const maxPdfBytes = 12 * 1024 * 1024;
+export const maxPdfBytes = (process.env.POLICYDIFF_CLOUD_MODE === "1" ? 4 : 12) * 1024 * 1024;
 const parsed = z.object({
   pageCount: z.number().int().positive(),
   chunks: z.array(z.object({ page: z.number().int().positive(), section: z.string(), body: z.string().min(1) })).min(1),
@@ -29,12 +30,26 @@ function runPdfWorker(script: "extract.py" | "render_page.py", bytes: Uint8Array
       },
     });
     const output: Buffer[] = [];
+    let outputBytes = 0;
+    let outputExceeded = false;
     let errors = "";
-    child.stdout.on("data", (data: Buffer) => { output.push(data); });
+    child.stdout.on("data", (data: Buffer) => {
+      outputBytes += data.length;
+      if (outputBytes > 20 * 1024 * 1024) {
+        outputExceeded = true;
+        child.kill();
+        return;
+      }
+      output.push(data);
+    });
     child.stderr.setEncoding("utf8").on("data", (data: string) => { errors = (errors + data).slice(-2000); });
     child.stdin.on("error", () => { /* Close status reports startup and parser failures. */ });
     child.on("error", () => reject(new Error("Python could not start. Follow the setup steps in the README.")));
     child.on("close", (code, signal) => {
+      if (outputExceeded) {
+        reject(new Error(action + " exceeded the processing limit."));
+        return;
+      }
       if (code !== 0) {
         const message = code === 2 ? errors.trim().split("\n").at(-1)
           : signal ? action + " timed out." : action + " failed. Check the Python setup.";
@@ -70,20 +85,22 @@ export async function renderSourcePage(version: string, page: number) {
 
 export async function uploadVersion(input: UploadInput, bytes: Uint8Array, demoUrl?: string) {
   if (bytes.length < 5 || bytes.length > maxPdfBytes || Buffer.from(bytes.subarray(0, 5)).toString() !== "%PDF-") {
-    throw new RequestError("Choose a PDF of up to 12 MB.");
+    throw new RequestError(`Choose a PDF of up to ${maxPdfBytes / (1024 * 1024)} MB.`);
   }
   const sha = createHash("sha256").update(bytes).digest("hex");
   const store = await db();
   return store.transaction(async (tx) => {
+    const owner = demoUrl ? localWorkspaceId : workspaceId();
+    if (cloudMode() && !demoUrl) await tx.query("SELECT id FROM workspaces WHERE id = $1 FOR UPDATE", [owner]);
     let policyId = input.policyId;
     if (!policyId) {
       const { rows } = await tx.query<{id: string}>(`
-        INSERT INTO policies (name, demo) VALUES ($1, $2)
-        ON CONFLICT (name, demo) DO UPDATE SET name = EXCLUDED.name RETURNING id
-      `, [input.name, Boolean(demoUrl)]);
+        INSERT INTO policies (name, demo, workspace_id) VALUES ($1, $2, $3)
+        ON CONFLICT (workspace_id, name, demo) DO UPDATE SET name = EXCLUDED.name RETURNING id
+      `, [input.name, Boolean(demoUrl), owner]);
       policyId = rows[0].id;
     }
-    const { rows: [policy] } = await tx.query<{demo: boolean}>("SELECT demo FROM policies WHERE id = $1 FOR UPDATE", [policyId]);
+    const { rows: [policy] } = await tx.query<{demo: boolean}>("SELECT demo FROM policies WHERE id = $1 AND workspace_id = $2 FOR UPDATE", [policyId, owner]);
     if (!policy) throw new RequestError("Policy not found.", 404);
     if (policy.demo !== Boolean(demoUrl)) throw new RequestError("Demo policies are read-only.", 403);
 
@@ -91,6 +108,11 @@ export async function uploadVersion(input: UploadInput, bytes: Uint8Array, demoU
       "SELECT id FROM versions WHERE policy_id = $1 AND sha256 = $2", [policyId, sha],
     );
     if (duplicate) return { id: duplicate.id, duplicate: true };
+    if (cloudMode() && !demoUrl) {
+      const { rows: [count] } = await tx.query<{ count: number }>(
+        "SELECT count(*)::int AS count FROM versions v JOIN policies p ON p.id = v.policy_id WHERE p.workspace_id = $1", [owner]);
+      if (count.count >= 2) throw new RequestError("This temporary workspace holds two PDFs. Clear it before uploading another pair.", 429);
+    }
     const { rows: [version] } = await tx.query<{id: string}>(`
       INSERT INTO versions (policy_id, label, effective_on, sha256, pdf, source_url)
       VALUES ($1,$2,$3,$4,$5,$6) ON CONFLICT (policy_id, label) DO NOTHING RETURNING id
@@ -125,14 +147,19 @@ export async function ingest(id: string): Promise<{status: Status; error?: strin
     try {
       vectors = await embeddings(result.chunks.map((chunk) => chunk.body));
     } catch (error) {
-      console.error("Embedding failed", error);
+      console.error("Embedding failed", error instanceof Error ? error.name : "Unknown error");
       throw new Error("The local embedding model could not load. Run npm run setup:model and retry.");
     }
     return await store.transaction(async (tx) => {
       const { rows } = await tx.query(
         "SELECT version_id FROM ingestion_jobs WHERE version_id = $1 AND claim = $2 FOR UPDATE", [id, claim],
       );
-      if (!rows.length) return { status: "processing" };
+      if (!rows.length) {
+        const { rows: [current] } = await tx.query<{status: Status; error: string | null}>(
+          "SELECT status, error FROM ingestion_jobs WHERE version_id = $1", [id],
+        );
+        return { status: current.status, ...(current.error ? { error: current.error } : {}) };
+      }
       await tx.query("DELETE FROM chunks WHERE version_id = $1", [id]);
       const records = result.chunks.map((chunk, ordinal) => ({ ...chunk, ordinal, embedding: vectorLiteral(vectors[ordinal]) }));
       await tx.query(`
@@ -153,7 +180,11 @@ export async function ingest(id: string): Promise<{status: Status; error?: strin
       UPDATE ingestion_jobs SET status = 'failed', error = $3, claim = null, lease_until = null, updated_at = now()
       WHERE version_id = $1 AND claim = $2 RETURNING version_id
     `, [id, claim, message]);
-    return rows.length ? { status: "failed", error: message } : { status: "processing" };
+    if (rows.length) return { status: "failed", error: message };
+    const { rows: [current] } = await store.query<{status: Status; error: string | null}>(
+      "SELECT status, error FROM ingestion_jobs WHERE version_id = $1", [id],
+    );
+    return { status: current.status, ...(current.error ? { error: current.error } : {}) };
   }
 }
 
@@ -167,17 +198,18 @@ export async function library() {
         (j.status IN ('queued','failed') OR coalesce(j.lease_until < now(), false)) AS can_resume
       FROM versions v JOIN ingestion_jobs j ON j.version_id = v.id WHERE v.policy_id = p.id
     ) v ON true
+    WHERE p.demo OR p.workspace_id = $1
     GROUP BY p.id ORDER BY p.demo DESC, p.name
-  `);
+  `, [workspaceId()]);
   return rows;
 }
 
 export async function pdf(id: string) {
   const store = await db();
   const { rows: [record] } = await store.query<{pdf: Uint8Array; demo: boolean}>(
-    "SELECT v.pdf, p.demo FROM versions v JOIN policies p ON v.policy_id = p.id WHERE v.id = $1", [id],
+    "SELECT v.pdf, p.demo FROM versions v JOIN policies p ON v.policy_id = p.id WHERE v.id = $1 AND (p.demo OR p.workspace_id = $2)", [id, workspaceId()],
   );
-  if (!record || (process.env.POLICYDIFF_DEMO_ONLY === "1" && !record.demo)) {
+  if (!record || (demoOnly() && !record.demo)) {
     throw new RequestError("Document not found.", 404);
   }
   return record.pdf;
@@ -205,8 +237,8 @@ export async function loadDemo() {
 export async function versionForIngest(id: string) {
   const store = await db();
   const { rows: [row] } = await store.query<{demo: boolean} & Pick<Version, "id">>(
-    "SELECT v.id, p.demo FROM versions v JOIN policies p ON v.policy_id = p.id WHERE v.id = $1", [id],
+    "SELECT v.id, p.demo FROM versions v JOIN policies p ON v.policy_id = p.id WHERE v.id = $1 AND (p.demo OR p.workspace_id = $2)", [id, workspaceId()],
   );
-  if (!row || (process.env.POLICYDIFF_DEMO_ONLY === "1" && !row.demo)) throw new RequestError("Version not found.", 404);
+  if (!row || (demoOnly() && !row.demo)) throw new RequestError("Version not found.", 404);
   return row;
 }

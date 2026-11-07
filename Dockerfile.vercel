@@ -1,0 +1,28 @@
+FROM node:24-bookworm-slim AS build
+ENV NEXT_TELEMETRY_DISABLED=1 PYTHONDONTWRITEBYTECODE=1
+RUN apt-get update && apt-get install -y --no-install-recommends python3 python3-pip curl libglib2.0-0 fonts-dejavu-core && rm -rf /var/lib/apt/lists/*
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY requirements.txt ./
+COPY scripts/setup-model.mjs ./scripts/setup-model.mjs
+RUN npm run setup
+COPY . .
+RUN mkdir -p public && npm run build
+
+FROM node:24-bookworm-slim AS runtime
+ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 PYTHONDONTWRITEBYTECODE=1 HOSTNAME=0.0.0.0 PORT=3000 POLICYDIFF_DATA_DIR=/tmp/policydiff/postgres
+RUN apt-get update && apt-get install -y --no-install-recommends python3 libglib2.0-0 fonts-dejavu-core && rm -rf /var/lib/apt/lists/*
+WORKDIR /app
+COPY --from=build --chown=node:node /app/.next/standalone ./
+COPY --from=build --chown=node:node /app/.next/static ./.next/static
+COPY --from=build --chown=node:node /app/public ./public
+COPY --from=build --chown=node:node /app/demo ./demo
+COPY --from=build --chown=node:node /app/db ./db
+COPY --from=build --chown=node:node /app/worker ./worker
+COPY --from=build --chown=node:node /app/.python ./.python
+COPY --from=build --chown=node:node /app/.data/models ./.data/models
+USER node
+EXPOSE 3000
+CMD ["node", "server.js"]
+

@@ -14,6 +14,7 @@ NOISE = re.compile(
 )
 MAX_PAGE_COUNT = 160
 MAX_CHUNK = 850
+MAX_TEXT_CHARACTERS = 2_550_000
 
 
 def split_block(text):
@@ -33,10 +34,15 @@ def extract(data):
             if not 0 < len(reader) <= MAX_PAGE_COUNT:
                 raise ValueError(f"PDFs must contain 1 to {MAX_PAGE_COUNT} pages.")
             pages = []
+            character_count = 0
             for index in range(len(reader)):
                 with closing(reader[index]) as page:
                     with closing(page.get_textpage()) as text:
-                        pages.append(text.get_text_bounded())
+                        page_text = text.get_text_bounded()
+                        character_count += len(page_text)
+                        if character_count > MAX_TEXT_CHARACTERS:
+                            raise ValueError("The PDF exceeds the text processing limit.")
+                        pages.append(page_text)
     except (PdfiumError, OSError) as error:
         raise ValueError("The PDF could not be read. Check that it is valid and can be opened without a password.") from error
 
@@ -62,6 +68,8 @@ def extract(data):
                 {"page": page_no, "section": section, "body": part}
                 for part in split_block(text)
             )
+            if len(chunks) > 3000:
+                raise ValueError("The PDF exceeds the text processing limit.")
             block.clear()
 
         for line in lines:

@@ -16,10 +16,10 @@
   },
   "type": "module",
   "dependencies": {
-    "@ai-sdk/openai": "^4.0.109",
     "@electric-sql/pglite": "^0.5.15",
     "@electric-sql/pglite-pgvector": "^0.0.16",
     "@huggingface/transformers": "^4.3.2",
+    "@openrouter/ai-sdk-provider": "^3.1.0",
     "ai": "^7.0.163",
     "diff": "^9.0.0",
     "geist": "^1.9.2",
@@ -43,5 +43,10 @@
   "private": true,
   "engines": {
     "node": "24.x"
+  },
+  "overrides": {
+    "@typescript-eslint/typescript-estree": {
+      "minimatch": "11.0.1"
+    }
   }
 }

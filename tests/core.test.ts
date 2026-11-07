@@ -4,9 +4,11 @@ import { randomUUID } from "node:crypto";
 import { applyExplanations, makeCandidates } from "../lib/analysis";
 import { compare, getComparison } from "../lib/comparisons";
 import { closeEncoder } from "../lib/embedding";
+import { comparisonInput } from "../lib/contracts";
 import { closeDb, db } from "../lib/db";
 import { extractPdf, ingest, library, pdf, uploadVersion } from "../lib/ingestion";
 import { prepareQuery, retrieve, type Chunk } from "../lib/retrieval";
+import { explain, openRouterEnabled } from "../lib/model";
 import { textPdf } from "./fixtures";
 
 delete process.env.DATABASE_URL;
@@ -53,13 +55,67 @@ test("document instructions and cross-version citations cannot replace retrieved
   const rejected = applyExplanations(candidates, [{ row: 0, explanation: "Injected", oldIds: [next.id], newIds: [old.id] }]);
   assert.deepEqual(rejected, candidates);
   const accepted = applyExplanations(candidates, [{ row: 0, explanation: "Replaced wording", oldIds: [old.id], newIds: [next.id] }]);
-  assert.equal(accepted[0].description, "Replaced wording");
+  assert.equal(accepted[0].aiExplanation, "Replaced wording");
   assert.equal(accepted[0].old[0].page, 1);
 });
 
-test("deduplication, a failed job retry, version isolation, source constraints and persisted comparison", async () => {
-  const oldBytes = textPdf(["2.1 Roadside assistance", "The towing deductible is 100 dollars for a covered vehicle."]);
-  const nextBytes = textPdf(["2.1 Roadside assistance", "The towing deductible is 250 dollars for a covered vehicle."]);
+test("unrelated headings at the same section number require review", () => {
+  const old = chunk("1.1", "1.1 Collision coverage\nThe policy covers collision damage subject to a deductible.");
+  const next = chunk("1.1", "1.1 Emergency treatment\nThe policy pays for emergency medical transportation.");
+  const [result] = makeCandidates(["1.1"], [old], [next], [], []);
+  assert.equal(result.kind, "review");
+  assert.ok(result.old.some(({ id }) => id === old.id));
+  assert.ok(result.next.some(({ id }) => id === next.id));
+});
+
+test("appended text remains available in the source evidence", () => {
+  const shared = chunk("2.1", "2.1 Claims\nThe insured must report a covered accident within seven days.");
+  const unchanged = { ...shared, id: randomUUID() };
+  const appended = chunk("2.1", "The insured must also provide the repair estimate.");
+  appended.ordinal = 1;
+  const [result] = makeCandidates(["2.1"], [shared], [unchanged, appended], [], []);
+  assert.equal(result.kind, "changed");
+  assert.ok(result.next.some(({ id }) => id === appended.id));
+});
+
+test("evidence includes text moved beyond the first two chunks", () => {
+  const older = [
+    chunk("2.1", "2.1 Claims\nThe insured must report an accident within seven days."),
+    chunk("2.1", "The insured must provide a sworn declaration."),
+    chunk("2.1", "The insurer must pay within fourteen days."),
+  ];
+  const newer = [
+    chunk("2.1", "2.1 Claims\nThe insured must report an accident within ten days."),
+    chunk("2.1", "The insurer must pay within fourteen days."),
+    chunk("2.1", "The insured must provide a sworn declaration."),
+  ];
+  const [result] = makeCandidates(["2.1"], older, newer, [], []);
+  assert.equal(result.kind, "changed");
+  assert.ok(result.old.some(({ body }) => body.includes("sworn declaration")));
+  assert.ok(result.next.some(({ body }) => body.includes("sworn declaration")));
+});
+
+test("missing unnumbered evidence yields an explicit review finding", () => {
+  const results = makeCandidates([], [], [], [], []);
+  assert.equal(results.length, 1);
+  assert.equal(results[0].kind, "review");
+  assert.deepEqual(results[0].old, []);
+  assert.deepEqual(results[0].next, []);
+});
+
+test("duplicate model rows cannot select an arbitrary explanation", () => {
+  const old = chunk("2.1", "2.1 Claims\nThe insured must report an accident within seven days.");
+  const next = chunk("2.1", "2.1 Claims\nThe insured must report an accident within ten days.");
+  const candidates = makeCandidates(["2.1"], [old], [next], [], []);
+  const proposal = { row: 0, explanation: "The deadline changes to ten days.", oldIds: [old.id], newIds: [next.id] };
+  const result = applyExplanations(candidates, [proposal, { ...proposal, explanation: "Conflicting explanation." }]);
+  assert.equal(result[0].aiExplanation, undefined);
+});
+
+test("deduplication, a failed job retry, version isolation, source constraints and persisted comparison", async (t) => {
+  const unchangedLines = ["2.2 Claim forms", "A claim form must include the vehicle registration number."];
+  const oldBytes = textPdf(["2.1 Roadside assistance", "The towing deductible is 100 dollars for a covered vehicle.", ...unchangedLines]);
+  const nextBytes = textPdf(["2.1 Roadside assistance", "The towing deductible is 250 dollars for a covered vehicle.", ...unchangedLines]);
   const original = { name: "Test automobile policy", label: "Older", effectiveOn: "2022-01-01" };
   const [a, b] = await Promise.all([uploadVersion(original, oldBytes), uploadVersion(original, oldBytes)]);
   assert.equal(a.id, b.id);
@@ -85,12 +141,76 @@ test("deduplication, a failed job retry, version isolation, source constraints a
 
   const query = await prepareQuery("What is the towing deductible?", true);
   assert.ok((await retrieve(store, newer.id, query)).every((row) => row.version_id === newer.id));
-  const report = await compare({ oldId: a.id, newId: newer.id, question: "What changed in section 2.1?", mode: "local" });
+  const report = await compare({ oldId: a.id, newId: newer.id, question: "What changed in sections 2.1 and 2.2?", mode: "local" });
   assert.equal(report.findings[0].kind, "changed");
   assert.equal(report.findings[0].sources.length, 2);
   assert.equal((await getComparison(report.id)).findings[0].id, report.findings[0].id);
+  assert.deepEqual(report.unchanged_sections, ["2.2"]);
+  const matching = await compare({ oldId: a.id, newId: newer.id, question: "What changed in section 2.2?", mode: "local" });
+  assert.equal(matching.findings.length, 0);
+  assert.deepEqual(matching.unchanged_sections, ["2.2"]);
+  assert.deepEqual((await getComparison(matching.id)).unchanged_sections, ["2.2"]);
+  const unrelated = await compare({ oldId: a.id, newId: newer.id, question: "How did the dental surgery waiting period change?", mode: "local" });
+  assert.ok(unrelated.findings.length > 0);
+  assert.ok(unrelated.findings.every(({ kind }) => kind === "review"));
+  await assert.rejects(compare({
+    oldId: a.id, newId: newer.id, mode: "local",
+    question: "Compare sections " + Array.from({ length: 11 }, (_, index) => "2." + (index + 1)).join(", "),
+  }), (error: unknown) => error instanceof Error && "status" in error && error.status === 422);
   assert.deepEqual(Buffer.from(await pdf(a.id)), oldBytes);
   await assert.rejects(store.query("UPDATE sources SET page = 9 WHERE finding_id = $1", [report.findings[0].id]),
     /foreign key constraint/i);
   await assert.rejects(compare({ oldId: newer.id, newId: a.id, question: "What changed?", mode: "local" }), /older edition first/);
+  await t.test("OpenRouter sends a free schema request and persists only verified citations", async () => {
+    const originalKey = process.env.OPENROUTER_API_KEY;
+    const originalDemo = process.env.POLICYDIFF_DEMO_ONLY;
+    process.env.OPENROUTER_API_KEY = "test-key";
+    delete process.env.POLICYDIFF_DEMO_ONLY;
+    try {
+      const fetchMock = t.mock.method(globalThis, "fetch", async (url: string, init: RequestInit) => {
+        assert.equal(url, "https://openrouter.ai/api/v1/chat/completions");
+        const body = JSON.parse(String(init.body));
+        assert.equal(body.model, "nvidia/nemotron-3.5-super-vl:free");
+        assert.equal(body.response_format.type, "json_schema");
+        assert.deepEqual(body.reasoning, { effort: "none" });
+        assert.deepEqual(body.provider, {
+          require_parameters: true, max_price: { prompt: 0, completion: 0, request: 0 },
+        });
+        const [{ row, old, new: next }] = JSON.parse(body.messages.at(-1).content).evidence;
+        return Response.json({
+          id: "chatcmpl-test", model: body.model, created: 1, object: "chat.completion",
+          choices: [{ index: 0, finish_reason: "stop", message: {
+            role: "assistant", content: JSON.stringify({
+              findings: [{
+                row, explanation: "The towing deductible rises from 100 to 250 dollars.",
+                oldIds: old.map(({ id }: { id: string }) => id),
+                newIds: next.map(({ id }: { id: string }) => id),
+              }],
+            }),
+          } }],
+        });
+      });
+      const request = { oldId: a.id, newId: newer.id, question: "What changed in section 2.1?", mode: "openrouter" } as const;
+      assert.equal(comparisonInput.safeParse({ ...request, mode: "openai" }).success, false);
+      const result = await compare(request);
+      assert.equal(result.mode, "openrouter");
+      assert.equal(result.findings[0].ai_context_complete, true);
+      assert.equal(result.findings[0].ai_explanation, "The towing deductible rises from 100 to 250 dollars.");
+      assert.equal(result.findings[0].description, report.findings[0].description);
+      assert.equal((await getComparison(result.id)).findings[0].ai_explanation, result.findings[0].ai_explanation);
+      assert.deepEqual(result.findings[0].sources, report.findings[0].sources);
+      assert.equal((await getComparison(result.id)).mode, "openrouter");
+      process.env.POLICYDIFF_DEMO_ONLY = "1";
+      assert.equal(openRouterEnabled(), false);
+      await assert.rejects(explain("What changed?", []),
+        (error: unknown) => error instanceof Error && "status" in error && error.status === 403);
+      assert.equal(fetchMock.mock.callCount(), 1);
+    } finally {
+      t.mock.restoreAll();
+      if (originalKey === undefined) delete process.env.OPENROUTER_API_KEY;
+      else process.env.OPENROUTER_API_KEY = originalKey;
+      if (originalDemo === undefined) delete process.env.POLICYDIFF_DEMO_ONLY;
+      else process.env.POLICYDIFF_DEMO_ONLY = originalDemo;
+    }
+  });
 });

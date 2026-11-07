@@ -1,0 +1,227 @@
+{
+  "workspace": {
+    "policies": [
+      {
+        "id": "4cf861d9-aa05-47cd-af3a-0192fc1f2622",
+        "name": "Ontario Automobile Policy (OAP 1)",
+        "demo": true,
+        "versions": [
+          {
+            "id": "97d5cba3-860f-468d-9d84-bd6b99e17416",
+            "error": null,
+            "label": "2022 edition",
+            "status": "ready",
+            "attempts": 1,
+            "can_resume": false,
+            "page_count": 68,
+            "source_url": "https://wwmic.com/wp-content/uploads/2023/11/OAP1-2022-Ontario-Automobile-Policy.pdf",
+            "effective_on": "2022-01-01"
+          },
+          {
+            "id": "6ee6c66b-e1b3-4aa5-baed-dd078794a083",
+            "error": null,
+            "label": "July 2026 edition",
+            "status": "ready",
+            "attempts": 1,
+            "can_resume": false,
+            "page_count": 68,
+            "source_url": "https://www.kemutual.com/wp-content/uploads/2026/04/Ontario-Automobile-Policy-OAP-1-July-1-2026.pdf",
+            "effective_on": "2026-07-01"
+          }
+        ]
+      }
+    ],
+    "comparisons": [
+      {
+        "id": "f1317c3b-8ad9-4c53-a6ec-45538bba5512",
+        "question": "What changed in section 4.2.1?",
+        "mode": "local",
+        "unchanged_sections": [],
+        "old_id": "97d5cba3-860f-468d-9d84-bd6b99e17416",
+        "new_id": "6ee6c66b-e1b3-4aa5-baed-dd078794a083",
+        "old_label": "2022 edition",
+        "new_label": "July 2026 edition",
+        "policy_name": "Ontario Automobile Policy (OAP 1)",
+        "created_at": "2026-11-07T14:49:07.517Z"
+      },
+      {
+        "id": "4f4cc5f1-2a78-4534-aca0-4f2a6e0ffc09",
+        "question": "What changed in section 4.2.1?",
+        "mode": "openrouter",
+        "unchanged_sections": [],
+        "old_id": "97d5cba3-860f-468d-9d84-bd6b99e17416",
+        "new_id": "6ee6c66b-e1b3-4aa5-baed-dd078794a083",
+        "old_label": "2022 edition",
+        "new_label": "July 2026 edition",
+        "policy_name": "Ontario Automobile Policy (OAP 1)",
+        "created_at": "2026-11-07T09:28:33.247Z"
+      }
+    ],
+    "demoOnly": true,
+    "openRouter": true,
+    "staticDemo": true,
+    "temporary": false,
+    "maxPdfMb": 4
+  },
+  "comparison": {
+    "id": "f1317c3b-8ad9-4c53-a6ec-45538bba5512",
+    "question": "What changed in section 4.2.1?",
+    "mode": "local",
+    "unchanged_sections": [],
+    "old_id": "97d5cba3-860f-468d-9d84-bd6b99e17416",
+    "new_id": "6ee6c66b-e1b3-4aa5-baed-dd078794a083",
+    "old_label": "2022 edition",
+    "new_label": "July 2026 edition",
+    "policy_name": "Ontario Automobile Policy (OAP 1)",
+    "created_at": "2026-11-07T14:49:07.517Z",
+    "findings": [
+      {
+        "id": "f568177b-2f92-4802-a8a4-96d0eb5810d9",
+        "section": "4.3.1 → 4.2.1",
+        "kind": "changed",
+        "description": "Section renumbered. Edited passage: “pay the Income Replacement Benefit, Non-Earner Benefit, Caregiver Benefit and” → “pay the Attendant Care Benefit within 10 business days of”.",
+        "ai_explanation": null,
+        "ai_context_complete": true,
+        "sources": [
+          {
+            "id": "b02fcc1c-b3e0-4a0d-bf81-231843c4a23f",
+            "body": "4.3.1 Applying for Benefits - Procedures and Time Limits\nAnyone applying for Accident Benefits must tell us within 7 days of the accident or as soon after that as possible. We will send you or other insured persons an application for Accident Benefits. The person applying for the benefits must send us the completed application within 30 days of receiving it. You or other insured persons may still be entitled to benefits if these time limits are not met for good reason, but payment of the benefit may be delayed. We must pay the Income Replacement Benefit, Non-Earner Benefit, Caregiver Benefit and Housekeeping and Home Maintenance Benefit within 10 business days of receiving the complete application for those benefits. We must pay the Death Benefit, Funeral Benefit and Payment of Other Expenses within 30 days of receiving the complete",
+            "page": 33,
+            "side": "old",
+            "version_id": "97d5cba3-860f-468d-9d84-bd6b99e17416"
+          },
+          {
+            "id": "97e81121-0c1d-4a82-9849-b96b64a743e9",
+            "body": "application. We must pay the Attendant Care Benefit within 10 business days of receiving a completed Assessment of Attendant Care Needs form. If you or another insured person is claiming the Medical Benefit or Rehabilitation Benefit, your doctor or another member of a regulated health profession including a social worker must provide us with a treatment and assessment plan or other related forms. In some cases, we can ask you or other insured persons to go for an independent assessment to assess your needs. We may ask you or other insured persons to provide additional information in connection with the claim, such as a statutory declaration as to the circumstances that gave rise to the application, or proof of identity. We can also ask you or other insured persons to attend an examination under oath in connection with entitlement to",
+            "page": 33,
+            "side": "old",
+            "version_id": "97d5cba3-860f-468d-9d84-bd6b99e17416"
+          },
+          {
+            "id": "9dafd7ee-d344-4d5e-820c-1ee1f9904c23",
+            "body": "benefits, on reasonable advance notice and at a time and place that are convenient to the person. If the person does not participate as requested, benefits may be delayed or suspended. If the injuries fall within certain guidelines issued by the Chief Executive Officer of Financial Services Regulatory Authority of Ontario, you or other insured persons may be entitled to some medical or rehabilitation treatments without our prior approval and before a completed application is submitted.",
+            "page": 33,
+            "side": "old",
+            "version_id": "97d5cba3-860f-468d-9d84-bd6b99e17416"
+          },
+          {
+            "id": "f5b72c27-ecd4-4985-a710-3743b14ff0ce",
+            "body": "4.2.1 Applying for Benefits - Procedures and Time Limits\nAnyone applying for Accident Benefits must tell us within 7 days of the accident or as soon after that as possible. We will send you or other insured persons an application for Accident Benefits. The person applying for the benefits must send us the completed application within 30 days of receiving it. You or other insured persons may still be entitled to benefits if these time limits are not met for good reason, but payment of the benefit may be delayed. We must pay the Attendant Care Benefit within 10 business days of receiving a completed Assessment of Attendant Care Needs form. If you or another insured person is claiming the Medical Benefit or Rehabilitation Benefit, your doctor or another member of a regulated health profession including a social worker must provide us with a",
+            "page": 33,
+            "side": "new",
+            "version_id": "6ee6c66b-e1b3-4aa5-baed-dd078794a083"
+          },
+          {
+            "id": "cc14b29e-c221-42a4-ba2f-6a12ccce37dc",
+            "body": "treatment and assessment plan or other related forms. We must pay the Income Replacement Benefit, Non-Earner Benefit, Caregiver Benefit and Housekeeping and Home Maintenance Benefit within 10 business days of receiving the complete application, provided you have purchased these benefits.",
+            "page": 33,
+            "side": "new",
+            "version_id": "6ee6c66b-e1b3-4aa5-baed-dd078794a083"
+          },
+          {
+            "id": "373f501d-ea35-48b7-9156-d83a987df719",
+            "body": "We must pay the Death Benefit, Funeral Benefit, Lost Educational Expenses Benefit, Expenses of Visitors Benefit, Housekeeping and Home Maintenance Benefit, and Damage to Personal Items Benefit within 30 days of receiving the complete application, provided you have purchased these benefits. In some cases, we can ask you or other insured persons to go for an independent assessment to assess your needs. We may ask you or other insured personsto provide additional information in connection with the claim, such as a statutory declaration as to the circumstances that gave rise to the application, or proof of identity. We can also ask you or other insured persons to attend an examination under oath in connection with entitlement to benefits, on reasonable advance notice and at a time and place that are convenient to the person. If the person",
+            "page": 34,
+            "side": "new",
+            "version_id": "6ee6c66b-e1b3-4aa5-baed-dd078794a083"
+          },
+          {
+            "id": "46dda0ac-c148-47de-8faa-9bf3e440b6ee",
+            "body": "does not participate as requested, benefits may be delayed or suspended. If the injuriesfall within certain guidelinesissued by the Chief Executive Officer of Financial Services Regulatory Authority of Ontario, you or other insured persons may be entitled to some medical or rehabilitation treatments without our prior approval and before a completed application is submitted.",
+            "page": 34,
+            "side": "new",
+            "version_id": "6ee6c66b-e1b3-4aa5-baed-dd078794a083"
+          }
+        ]
+      }
+    ]
+  },
+  "files": {
+    "97d5cba3-860f-468d-9d84-bd6b99e17416": {
+      "file": "oap-2022.pdf",
+      "pages": [
+        33
+      ]
+    },
+    "6ee6c66b-e1b3-4aa5-baed-dd078794a083": {
+      "file": "oap-2026.pdf",
+      "pages": [
+        33,
+        34
+      ]
+    }
+  },
+  "aiComparison": {
+    "id": "4f4cc5f1-2a78-4534-aca0-4f2a6e0ffc09",
+    "question": "What changed in section 4.2.1?",
+    "mode": "openrouter",
+    "unchanged_sections": [],
+    "old_id": "97d5cba3-860f-468d-9d84-bd6b99e17416",
+    "new_id": "6ee6c66b-e1b3-4aa5-baed-dd078794a083",
+    "old_label": "2022 edition",
+    "new_label": "July 2026 edition",
+    "policy_name": "Ontario Automobile Policy (OAP 1)",
+    "created_at": "2026-11-07T09:28:33.247Z",
+    "findings": [
+      {
+        "id": "241359ec-3785-4416-9ba3-b12bac2992c9",
+        "section": "4.3.1 → 4.2.1",
+        "kind": "changed",
+        "description": "Section renumbered. Edited passage: “pay the Income Replacement Benefit, Non-Earner Benefit, Caregiver Benefit and” → “pay the Attendant Care Benefit within 10 business days of”.",
+        "ai_explanation": "Section 4.3.1 was renumbered to 4.2.1. Language stating benefits must be paid within deadlines now adds “provided you have purchased these benefits.” The Death Benefit payment list adds Lost Educational Expenses Benefit, Expenses of Visitors Benefit, and Damage to Personal Items Benefit.",
+        "ai_context_complete": true,
+        "sources": [
+          {
+            "id": "b02fcc1c-b3e0-4a0d-bf81-231843c4a23f",
+            "body": "4.3.1 Applying for Benefits - Procedures and Time Limits\nAnyone applying for Accident Benefits must tell us within 7 days of the accident or as soon after that as possible. We will send you or other insured persons an application for Accident Benefits. The person applying for the benefits must send us the completed application within 30 days of receiving it. You or other insured persons may still be entitled to benefits if these time limits are not met for good reason, but payment of the benefit may be delayed. We must pay the Income Replacement Benefit, Non-Earner Benefit, Caregiver Benefit and Housekeeping and Home Maintenance Benefit within 10 business days of receiving the complete application for those benefits. We must pay the Death Benefit, Funeral Benefit and Payment of Other Expenses within 30 days of receiving the complete",
+            "page": 33,
+            "side": "old",
+            "version_id": "97d5cba3-860f-468d-9d84-bd6b99e17416"
+          },
+          {
+            "id": "97e81121-0c1d-4a82-9849-b96b64a743e9",
+            "body": "application. We must pay the Attendant Care Benefit within 10 business days of receiving a completed Assessment of Attendant Care Needs form. If you or another insured person is claiming the Medical Benefit or Rehabilitation Benefit, your doctor or another member of a regulated health profession including a social worker must provide us with a treatment and assessment plan or other related forms. In some cases, we can ask you or other insured persons to go for an independent assessment to assess your needs. We may ask you or other insured persons to provide additional information in connection with the claim, such as a statutory declaration as to the circumstances that gave rise to the application, or proof of identity. We can also ask you or other insured persons to attend an examination under oath in connection with entitlement to",
+            "page": 33,
+            "side": "old",
+            "version_id": "97d5cba3-860f-468d-9d84-bd6b99e17416"
+          },
+          {
+            "id": "9dafd7ee-d344-4d5e-820c-1ee1f9904c23",
+            "body": "benefits, on reasonable advance notice and at a time and place that are convenient to the person. If the person does not participate as requested, benefits may be delayed or suspended. If the injuries fall within certain guidelines issued by the Chief Executive Officer of Financial Services Regulatory Authority of Ontario, you or other insured persons may be entitled to some medical or rehabilitation treatments without our prior approval and before a completed application is submitted.",
+            "page": 33,
+            "side": "old",
+            "version_id": "97d5cba3-860f-468d-9d84-bd6b99e17416"
+          },
+          {
+            "id": "f5b72c27-ecd4-4985-a710-3743b14ff0ce",
+            "body": "4.2.1 Applying for Benefits - Procedures and Time Limits\nAnyone applying for Accident Benefits must tell us within 7 days of the accident or as soon after that as possible. We will send you or other insured persons an application for Accident Benefits. The person applying for the benefits must send us the completed application within 30 days of receiving it. You or other insured persons may still be entitled to benefits if these time limits are not met for good reason, but payment of the benefit may be delayed. We must pay the Attendant Care Benefit within 10 business days of receiving a completed Assessment of Attendant Care Needs form. If you or another insured person is claiming the Medical Benefit or Rehabilitation Benefit, your doctor or another member of a regulated health profession including a social worker must provide us with a",
+            "page": 33,
+            "side": "new",
+            "version_id": "6ee6c66b-e1b3-4aa5-baed-dd078794a083"
+          },
+          {
+            "id": "cc14b29e-c221-42a4-ba2f-6a12ccce37dc",
+            "body": "treatment and assessment plan or other related forms. We must pay the Income Replacement Benefit, Non-Earner Benefit, Caregiver Benefit and Housekeeping and Home Maintenance Benefit within 10 business days of receiving the complete application, provided you have purchased these benefits.",
+            "page": 33,
+            "side": "new",
+            "version_id": "6ee6c66b-e1b3-4aa5-baed-dd078794a083"
+          },
+          {
+            "id": "373f501d-ea35-48b7-9156-d83a987df719",
+            "body": "We must pay the Death Benefit, Funeral Benefit, Lost Educational Expenses Benefit, Expenses of Visitors Benefit, Housekeeping and Home Maintenance Benefit, and Damage to Personal Items Benefit within 30 days of receiving the complete application, provided you have purchased these benefits. In some cases, we can ask you or other insured persons to go for an independent assessment to assess your needs. We may ask you or other insured personsto provide additional information in connection with the claim, such as a statutory declaration as to the circumstances that gave rise to the application, or proof of identity. We can also ask you or other insured persons to attend an examination under oath in connection with entitlement to benefits, on reasonable advance notice and at a time and place that are convenient to the person. If the person",
+            "page": 34,
+            "side": "new",
+            "version_id": "6ee6c66b-e1b3-4aa5-baed-dd078794a083"
+          },
+          {
+            "id": "46dda0ac-c148-47de-8faa-9bf3e440b6ee",
+            "body": "does not participate as requested, benefits may be delayed or suspended. If the injuriesfall within certain guidelinesissued by the Chief Executive Officer of Financial Services Regulatory Authority of Ontario, you or other insured persons may be entitled to some medical or rehabilitation treatments without our prior approval and before a completed application is submitted.",
+            "page": 34,
+            "side": "new",
+            "version_id": "6ee6c66b-e1b3-4aa5-baed-dd078794a083"
+          }
+        ]
+      }
+    ]
+  }
+}

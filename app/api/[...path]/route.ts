@@ -1,10 +1,13 @@
 import { NextResponse } from "next/server";
-import { ZodError } from "zod";
+import { z, ZodError } from "zod";
 import { compare, getComparison, history } from "@/lib/comparisons";
 import { comparisonInput, id, uploadInput } from "@/lib/contracts";
 import { RequestError } from "@/lib/errors";
 import { ingest, library, loadDemo, maxPdfBytes, pdf, renderSourcePage, uploadVersion, versionForIngest } from "@/lib/ingestion";
-import { openAiEnabled } from "@/lib/model";
+import { openRouterEnabled } from "@/lib/model";
+import { clearWorkspace, cloudMode, demoOnly, purgeExpiredWorkspaces, unlockWorkspace, workspaceRequest } from "@/lib/workspace";
+import { staticDemo, staticGet, staticPost } from "@/lib/static-demo";
+import { readJsonBody, readRequestBody } from "@/lib/http";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -19,8 +22,9 @@ function fail(error: unknown) {
   return NextResponse.json({ error: "The request failed. Check the server log and try again." }, { status: 500 });
 }
 
-export async function GET(_request: Request, context: Context) {
+async function getResource(_request: Request, context: Context) {
   try {
+    if (staticDemo()) return await staticGet((await context.params).path);
     const [resource, value, ...rest] = (await context.params).path;
     if (resource === "pdf" && value && rest.length === 1) {
       const page = Number(rest[0]);
@@ -33,11 +37,13 @@ export async function GET(_request: Request, context: Context) {
     }
     if (rest.length) throw new RequestError("Resource not found.", 404);
     if (resource === "workspace" && !value) {
-      const demoOnly = process.env.POLICYDIFF_DEMO_ONLY === "1";
+      const onlyDemo = demoOnly();
       const [policies, comparisons] = await Promise.all([library(), history()]);
       return NextResponse.json({
-        policies: demoOnly ? policies.filter((policy) => policy.demo) : policies,
-        comparisons, demoOnly, openAi: openAiEnabled(),
+        policies: onlyDemo ? policies.filter((policy) => policy.demo) : policies,
+        comparisons, demoOnly: onlyDemo, openRouter: openRouterEnabled(),
+        temporary: cloudMode(), requiresAccessCode: cloudMode() && onlyDemo,
+        maxPdfMb: maxPdfBytes / (1024 * 1024),
       }, { headers: { "Cache-Control": "no-store" } });
     }
     if (resource === "comparisons" && value) return NextResponse.json(await getComparison(id.parse(value)));
@@ -55,7 +61,7 @@ export async function GET(_request: Request, context: Context) {
   }
 }
 
-export async function POST(request: Request, context: Context) {
+async function postResource(request: Request, context: Context) {
   try {
     const origin = request.headers.get("origin");
     if (request.headers.get("sec-fetch-site") === "cross-site" ||
@@ -63,21 +69,34 @@ export async function POST(request: Request, context: Context) {
       throw new RequestError("Cross-origin requests are disabled.", 403);
     }
     const [resource, value, ...rest] = (await context.params).path;
+    if (staticDemo()) return await staticPost((await context.params).path, request);
     if (rest.length) throw new RequestError("Resource not found.", 404);
+    if (resource === "access" && !value) {
+      const input = z.object({ code: z.string().max(128) }).parse(await readJsonBody(request, 1024));
+      unlockWorkspace(input.code);
+      return NextResponse.json({ unlocked: true });
+    }
+    if (resource === "clear" && !value) {
+      await clearWorkspace();
+      return NextResponse.json({ cleared: true });
+    }
     if (resource === "demo" && !value) return NextResponse.json({ versions: await loadDemo() });
     if (resource === "versions" && !value) {
-      if (process.env.POLICYDIFF_DEMO_ONLY === "1") throw new RequestError("Uploads are disabled in demo mode.", 403);
-      const length = Number(request.headers.get("content-length") ?? 0);
-      if (length <= 0) throw new RequestError("The upload must include a content length.", 411);
-      if (length > maxPdfBytes + 65_536) throw new RequestError("Choose a PDF of up to 12 MB.", 413);
-      const form = await request.formData();
+      if (demoOnly()) throw new RequestError("Uploads are disabled in demo mode. Unlock the hosted workspace to use your own PDFs.", 403);
+      const body = await readRequestBody(request, maxPdfBytes + 65_536);
+      let form: FormData;
+      try {
+        form = await new Response(body, { headers: { "Content-Type": request.headers.get("content-type") || "" } }).formData();
+      } catch {
+        throw new RequestError("Invalid upload form. Choose the PDF and submit again.", 400);
+      }
       const input = uploadInput.parse({
         policyId: form.get("policyId") || undefined, name: form.get("name") || undefined,
         label: form.get("label"), effectiveOn: form.get("effectiveOn"),
       });
       const file = form.get("file");
       if (!(file instanceof File) || !file.name.toLowerCase().endsWith(".pdf") || file.size > maxPdfBytes) {
-        throw new RequestError("Choose a PDF of up to 12 MB.");
+        throw new RequestError(`Choose a PDF of up to ${maxPdfBytes / (1024 * 1024)} MB.`);
       }
       const result = await uploadVersion(input, new Uint8Array(await file.arrayBuffer()));
       return NextResponse.json(result, { status: result.duplicate ? 200 : 201 });
@@ -88,12 +107,21 @@ export async function POST(request: Request, context: Context) {
       return NextResponse.json(await ingest(versionId));
     }
     if (resource === "comparisons" && !value) {
-      const text = await request.text();
-      if (text.length > 4096) throw new RequestError("Comparison request is too large.", 413);
-      return NextResponse.json(await compare(comparisonInput.parse(JSON.parse(text))), { status: 201 });
+      return NextResponse.json(await compare(comparisonInput.parse(await readJsonBody(request, 4096))), { status: 201 });
     }
     throw new RequestError("Resource not found.", 404);
   } catch (error) {
     return fail(error);
   }
+}
+
+export function GET(request: Request, context: Context) {
+  return workspaceRequest(request, () => getResource(request, context));
+}
+
+export function POST(request: Request, context: Context) {
+  return workspaceRequest(request, async () => {
+    if (cloudMode()) await purgeExpiredWorkspaces();
+    return postResource(request, context);
+  });
 }

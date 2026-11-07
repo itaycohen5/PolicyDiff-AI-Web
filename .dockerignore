@@ -1,0 +1,16 @@
+.git
+node_modules
+.next
+.data
+.python
+.venv
+.env*
+test-results
+playwright-report
+*.tsbuildinfo
+__pycache__
+.agents
+.impeccable
+.taste-skill
+docs/QA-FIXES.patch
+

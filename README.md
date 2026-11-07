@@ -6,6 +6,8 @@ Compare insurance policy editions in a review workspace. PolicyDiff indexes text
 
 Install Node.js 24, Python 3.11 or later with pip, and curl. Open PowerShell in the project folder.
 
+Stop a running development or production server before `npm ci` on Windows so native Next.js modules can be replaced.
+
 ```powershell
 npm.cmd ci
 npm.cmd run setup
@@ -16,9 +18,9 @@ Open [PolicyDiff AI](http://127.0.0.1:3000), select **Load demo editions**, and 
 
 Setup installs the Python PDF extractor into `.python/` and downloads about 23 MB of pinned MiniLM model files into `.data/models/`. After that, local comparison runs offline. The first API request applies the database migration automatically. The default local database is PostgreSQL in a single PGlite process, with persistent data in `.data/postgres/`. Run one app process per embedded database directory.
 
-### OpenAI explanations
+### ClauseLens (optional AI explanation)
 
-Copy `.env.example` to `.env.local`, set `OPENAI_API_KEY`, optionally set `OPENAI_MODEL`, then restart the app. Choose **OpenAI explanation** in the workspace. The application sends the question and selected source excerpts to OpenAI in this mode. Local comparison uses the same retrieval and evidence validation with deterministic wording differences. The API key is read by the server.
+Create `.env.local` from `.env.example` if it does not already exist. Set `OPENROUTER_API_KEY` with a key from [OpenRouter](https://openrouter.ai/settings/keys) and restart the app. ClauseLens uses `nvidia/nemotron-3.5-super-vl:free` and sends the question and selected excerpts through OpenRouter to the model provider. The interface shows each accepted AI explanation above the comparison and PDF sources. If the free model is rate-limited or unavailable, switch to local comparison.
 
 ### PostgreSQL server with Docker
 
@@ -39,16 +41,16 @@ flowchart LR
   API --> Worker["Python PDF extractor"]
   Worker --> API
   API --> Encoder["Local MiniLM embeddings"]
-  API --> LLM["OpenAI structured explanations, optional"]
+  API --> LLM["OpenRouter structured explanations, optional"]
   LLM --> API
   DB --> Viewer["PDF source pages"]
   Viewer --> UI
 ```
 
 - **Ingestion.** A transaction stores the PDF, version metadata and a queued job. A SHA-256 digest and database constraints deduplicate uploads per policy. An ingestion request claims the job, runs the Python extractor in a bounded subprocess, embeds chunks locally, and commits the index and ready status together. Failed jobs can be retried in the library. If a process exits mid-job, the five-minute lease expires and a new request can resume it. Claim tokens stop an expired worker from overwriting a newer attempt.
-- **Retrieval.** Chunks retain their physical PDF page, section, text and order. PostgreSQL ranks keyword results and MiniLM vectors within each version, then combines the rankings with reciprocal rank fusion. Explicit section numbers receive priority. The application uses exact vector distance on this corpus and a GIN index for full-text search.
+- **Retrieval.** Chunks retain their physical PDF page, section, text and order. PostgreSQL ranks keyword results and MiniLM vectors within each version, then combines the rankings with reciprocal rank fusion. Semantic candidates require cosine similarity of at least 0.35. This heuristic reduces irrelevant nearest-neighbor results and needs recalibration for other corpora. Explicit section numbers receive priority. The application uses exact vector distance on this corpus and a GIN index for full-text search.
 - **Comparison.** The server aligns section numbers and checks for a unique matching heading in the same chapter to detect some renumbering. Local mode compares normalized text. An absent match is sent to review. Added and removed classifications require an explicit reserved or deleted marker in the paired section. The API persists findings and citations in one transaction. Composite foreign keys enforce the association between comparison, edition, chunk and page.
-- **Model boundary.** The model can propose explanations for server-selected pairs. The API accepts only the expected citation IDs for that finding on each side. A valid citation makes the excerpt inspectable. Whether a model's prose is supported by that excerpt still requires review.
+- **Model boundary.** ClauseLens receives every extracted chunk of each matched section in document order. Changed passages appear first in the source viewer and all remaining chunks stay available. The API accepts exactly one proposal per finding and only the expected citation IDs on each side. Historical AI explanations created before full-section context are retained in the database and require a new comparison before being shown as current explanations. A valid citation makes the excerpt inspectable. Whether a model's prose is supported by that excerpt still requires review.
 - **PDF limits.** Uploads support text PDFs up to 12 MB and 160 pages. Extraction preserves page numbers. Multi-column layouts, tables, and sections without recognizable numbers can require manual review. Questions work best in English with the bundled corpus and encoder. The workspace compares selected sections and is intended for document review.
 
 ## Checks and evaluation
@@ -60,16 +62,22 @@ npm.cmd test
 npm.cmd run build
 npx.cmd playwright install chromium
 npm.cmd run e2e
-npm.cmd run eval
+npm.cmd run eval -- --check
 ```
 
 Playwright starts the production build on port 3418 and uses a temporary in-memory database. The core and browser tests cover parsing, upload, duplicate and concurrent processing, job retry, version isolation, invalid citations, opening a PDF page and reloading comparison history. The adversarial fixture includes instructions in a PDF and tests rejection of a cross-version citation proposal.
 
 The [labeled evaluation set](evals/oap-cases.json) contains 30 OAP questions with expected section references and comparison outcomes. See [recorded results](evals/RESULTS.md) for the keyword and hybrid comparison, citation page coverage and warm latency. To refresh the report, run `npm.cmd run eval -- --write`.
 
+The evaluation reports original-question outcomes separately from targeted section alignment. CI checks the labeled targeted outcomes, source-page references and recorded retrieval baseline with `--check`. The Hebrew [QA audit](docs/QA-AUDIT.he.md) records reproduced defects, exact fixes, test coverage and remaining measurement limits. [QA-FIXES.patch](docs/QA-FIXES.patch) contains the source changes from this audit.
+
 ## Deployment
 
-The local workspace is intended for one trusted operator and binds to loopback by default. For a public demonstration, use a long-running Node.js host with Python and the model files installed, a dedicated database, and `POLICYDIFF_DEMO_ONLY=1`. This mode hides user documents and blocks new uploads and OpenAI calls at the API. Run `npm run setup`, `npm run build`, then `npm run start -- --hostname 0.0.0.0` behind an HTTPS reverse proxy that preserves the public Host header. Add request limits at the proxy and use a fresh database because public demo comparisons are shared. A private hosted workspace accepting uploads should sit behind authentication and be limited to trusted operators.
+See the [Hebrew Vercel deployment guide](docs/DEPLOYMENT.he.md) for the prepared public preview and the remaining Supabase connection step. The in-app **How to use** guide supports English and Hebrew. `Dockerfile.vercel` packages Next.js and Python for Vercel's beta Container Runtime, with `fra1` selected in `vercel.json`.
+
+`POLICYDIFF_STATIC_DEMO=1` serves only the checked-in public OAP 1 example and its previously generated AI explanation. This preview makes no live model calls and accepts no personal uploads. Full cloud mode requires a shared `DATABASE_URL`, a session-signing secret and a private upload access code. Its per-browser workspaces expire after one hour of inactivity, and expired data is removed on subsequent cleanup requests. See the deployment guide for exact limits and deletion behavior.
+
+The local workspace is intended for one trusted operator and binds to loopback by default. For a public demonstration, use a long-running Node.js host with Python and the model files installed, a dedicated database, and `POLICYDIFF_DEMO_ONLY=1`. This mode hides user documents and blocks new uploads and external model calls at the API. Run `npm run setup`, `npm run build`, then `npm run start -- --hostname 0.0.0.0` behind an HTTPS reverse proxy that preserves the public Host header. Add request limits at the proxy and use a fresh database because public demo comparisons are shared. A private hosted workspace accepting uploads should sit behind authentication and be limited to trusted operators.
 
 ## Document and model sources
 

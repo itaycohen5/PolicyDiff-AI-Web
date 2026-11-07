@@ -20,7 +20,7 @@ Analysts load a text PDF, select two indexed editions, ask a comparison question
 
 ## Capabilities and constraints
 
-Local comparison uses keyword and semantic retrieval and compares wording. The optional OpenAI explanation sends the question and selected excerpts to the model when configured. Missing or ambiguous evidence is flagged for review. Preserve the upload, ingestion retry, history and source-viewing workflows.
+Local comparison uses keyword and semantic retrieval and compares wording. The optional ClauseLens explanation via OpenRouter sends the question and selected excerpts to the model when configured. Missing or ambiguous evidence is flagged for review. Preserve the upload, ingestion retry, history and source-viewing workflows.
 
 ## Brand commitments
 
