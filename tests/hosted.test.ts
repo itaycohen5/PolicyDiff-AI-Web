@@ -1,6 +1,5 @@
 import assert from "node:assert/strict";
 import { after, test } from "node:test";
-import { randomUUID } from "node:crypto";
 import { GET, POST } from "../app/api/[...path]/route";
 import { closeDb, db } from "../lib/db";
 import { comparisonBudget, purgeExpiredWorkspaces, workspaceRequest } from "../lib/workspace";
@@ -17,6 +16,27 @@ async function request(path: string, cookie = "", body?: BodyInit, contentType?:
   const context = { params: Promise.resolve({ path: path.split("/") }) };
   const response = await (body === undefined ? GET(input, context) : POST(input, context));
   return { response, cookie: response.headers.get("set-cookie")?.split(";")[0] ?? cookie };
+}
+
+async function savedComparisonWithSources(oldId: string, newId: string) {
+  const store = await db();
+  return store.transaction(async (tx) => {
+    const { rows: [policy] } = await tx.query<{ id: string; workspace_id: string }>(
+      "SELECT p.id, p.workspace_id FROM policies p JOIN versions v ON v.policy_id = p.id WHERE v.id = $1", [oldId]);
+    const { rows: [comparison] } = await tx.query<{ id: string }>(
+      "INSERT INTO comparisons(policy_id, old_id, new_id, question, mode, workspace_id) VALUES ($1,$2,$3,'What changed in section 2.1?','local',$4) RETURNING id",
+      [policy.id, oldId, newId, policy.workspace_id]);
+    const { rows: [finding] } = await tx.query<{ id: string }>(
+      "INSERT INTO findings(comparison_id, position, section, kind, description) VALUES ($1,0,'2.1','changed','Synthetic wording changed.') RETURNING id", [comparison.id]);
+    for (const [side, versionId] of [["old", oldId], ["new", newId]]) {
+      const { rows: [chunk] } = await tx.query<{ id: string }>(
+        "INSERT INTO chunks(version_id, ordinal, page, section, body, embedding) VALUES ($1,0,1,'2.1','Synthetic source wording.',$2::vector) RETURNING id",
+        [versionId, JSON.stringify(Array(384).fill(0))]);
+      await tx.query("INSERT INTO sources(comparison_id, finding_id, old_id, new_id, side, version_id, chunk_id, page) VALUES ($1,$2,$3,$4,$5,$6,$7,1)",
+        [comparison.id, finding.id, oldId, newId, side, versionId, chunk.id]);
+    }
+    return { id: comparison.id, workspaceId: policy.workspace_id };
+  });
 }
 
 test("hosted workspaces gate uploads, isolate documents and delete only their own temporary data", async () => {
@@ -58,6 +78,11 @@ test("hosted workspaces gate uploads, isolate documents and delete only their ow
 
     const raced = await Promise.all(["Second", "Third"].map((label) => request("versions", a.cookie, form(label))));
     assert.deepEqual(raced.map((result) => result.response.status).sort(), [201, 429]);
+    const second = await raced.find((result) => result.response.status === 201)!.response.json();
+    const comparisonA = await savedComparisonWithSources(id, second.id);
+    const bOld = await (await request("versions", b.cookie, form("B older"))).response.json();
+    const bNew = await (await request("versions", b.cookie, form("B newer"))).response.json();
+    const comparisonB = await savedComparisonWithSources(bOld.id, bNew.id);
     const corrupted = a.cookie.slice(0, -1) + (a.cookie.endsWith("x") ? "y" : "x");
     const tampered = await request("workspace", corrupted);
     assert.equal((await tampered.response.json()).requiresAccessCode, true);
@@ -71,12 +96,14 @@ test("hosted workspaces gate uploads, isolate documents and delete only their ow
     const cleared = await request("clear", a.cookie, "");
     assert.equal(cleared.response.status, 200);
     assert.equal((await request("pdf/" + id, a.cookie)).response.status, 404);
+    assert.equal((await request("comparisons/" + comparisonA.id, a.cookie)).response.status, 404);
+    assert.equal((await request("comparisons/" + comparisonB.id, b.cookie)).response.status, 200);
 
-    const expired = randomUUID();
     const store = await db();
-    await store.query("INSERT INTO workspaces(id, expires_at) VALUES ($1, now() - interval '1 minute')", [expired]);
+    await store.query("UPDATE workspaces SET expires_at = now() - interval '1 minute' WHERE id = $1", [comparisonB.workspaceId]);
     assert.equal(await purgeExpiredWorkspaces(), 1);
-    assert.equal((await store.query("SELECT id FROM workspaces WHERE id = $1", [expired])).rows.length, 0);
+    assert.equal((await store.query("SELECT id FROM workspaces WHERE id = $1", [comparisonB.workspaceId])).rows.length, 0);
+    assert.equal((await store.query("SELECT id FROM comparisons WHERE id = $1", [comparisonB.id])).rows.length, 0);
   } finally {
     delete process.env.POLICYDIFF_CLOUD_MODE;
     delete process.env.POLICYDIFF_STATIC_DEMO;

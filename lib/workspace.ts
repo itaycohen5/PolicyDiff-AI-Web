@@ -96,6 +96,8 @@ export async function clearWorkspace() {
   await store.transaction(async (tx) => {
     const id = workspaceId();
     await tx.query("SELECT id FROM workspaces WHERE id = $1 FOR UPDATE", [id]);
+    // Sources also have a direct composite FK to comparisons; remove them first.
+    await tx.query("DELETE FROM sources WHERE comparison_id IN (SELECT id FROM comparisons WHERE workspace_id = $1)", [id]);
     await tx.query("DELETE FROM comparisons WHERE workspace_id = $1", [id]);
     await tx.query("DELETE FROM ingestion_jobs WHERE version_id IN (SELECT v.id FROM versions v JOIN policies p ON p.id = v.policy_id WHERE p.workspace_id = $1)", [id]);
     await tx.query("DELETE FROM chunks WHERE version_id IN (SELECT v.id FROM versions v JOIN policies p ON p.id = v.policy_id WHERE p.workspace_id = $1)", [id]);
@@ -110,6 +112,7 @@ export async function purgeExpiredWorkspaces() {
     const { rows } = await tx.query<{ id: string }>("SELECT id FROM workspaces WHERE expires_at < now() ORDER BY expires_at LIMIT 50 FOR UPDATE SKIP LOCKED");
     const ids = rows.map(({ id }) => id);
     if (!ids.length) return 0;
+    await tx.query("DELETE FROM sources WHERE comparison_id IN (SELECT id FROM comparisons WHERE workspace_id = ANY($1::uuid[]))", [ids]);
     await tx.query("DELETE FROM comparisons WHERE workspace_id = ANY($1::uuid[])", [ids]);
     await tx.query("DELETE FROM ingestion_jobs WHERE version_id IN (SELECT v.id FROM versions v JOIN policies p ON p.id = v.policy_id WHERE p.workspace_id = ANY($1::uuid[]))", [ids]);
     await tx.query("DELETE FROM chunks WHERE version_id IN (SELECT v.id FROM versions v JOIN policies p ON p.id = v.policy_id WHERE p.workspace_id = ANY($1::uuid[]))", [ids]);
