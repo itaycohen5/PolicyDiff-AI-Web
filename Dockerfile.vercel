@@ -6,12 +6,12 @@ COPY package.json package-lock.json ./
 RUN npm ci
 COPY requirements.txt ./
 COPY scripts/setup-model.mjs ./scripts/setup-model.mjs
-RUN npm run setup
+RUN python3 -m pip install --upgrade --target .python -r requirements.txt && npm run setup:model
 COPY . .
 RUN mkdir -p public && npm run build
 
 FROM node:24-bookworm-slim AS runtime
-ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 PYTHONDONTWRITEBYTECODE=1 HOSTNAME=0.0.0.0 PORT=3000 POLICYDIFF_DATA_DIR=/tmp/policydiff/postgres
+ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 PYTHONDONTWRITEBYTECODE=1 PYTHON_BIN=python3 HOSTNAME=0.0.0.0 PORT=3000 POLICYDIFF_DATA_DIR=/tmp/policydiff/postgres
 RUN apt-get update && apt-get install -y --no-install-recommends python3 libglib2.0-0 fonts-dejavu-core && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY --from=build --chown=node:node /app/.next/standalone ./
