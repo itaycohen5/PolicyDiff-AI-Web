@@ -16,7 +16,7 @@ colors:
   sky-soft: "#eaf5fc"
   link: "#205d8a"
   newer-paper: "#f3f8fc"
-  removed-mark: "#e1dad1"
+  marker: "#ffeb3b"
   error: "#7c302f"
   error-surface: "#fff3ef"
 typography:
@@ -161,7 +161,7 @@ Findings give the clause reference, change label and short explanation first, th
 - **Ink** (`ink`) carries primary text. **Slate** (`muted`) carries descriptions, captions and metadata. Use the soft `line` for panel boundaries and the stronger `control` stroke for fields and outlined actions.
 - **Removed Wording** (`removed-mark`) uses a warm fill on the older wording. The error palette pairs `error` ink with `error-surface` for failed states.
 
-**The Evidence Mark Rule.** Use a warm fill for the older phrase and sky for the newer phrase when a paired replacement has shared wording on both sides. Leave unmatched excerpt edges unmarked.
+**The Evidence Mark Rule.** Use yellow marker (`#ffeb3b`) with dark ink for changed words in both editions. The older/newer labels and surfaces identify the side. Compare full matched sections in document order before projecting highlights back into the page-bound excerpts, including additions, removals and expanded excerpts. Suppress unchanged moved excerpts and leave insufficient-evidence findings unmarked. Keep source text intact and explain the yellow mark with a short legend.
 
 ## Typography
 

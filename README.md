@@ -16,6 +16,10 @@ npm.cmd run dev
 
 Open [PolicyDiff AI](http://127.0.0.1:3000), select **Load demo editions**, and click **Compare editions**. The example pairs older section 4.3.1 with newer section 4.2.1. Select a source link to open the original PDF at its physical page number. Browser PDF viewers may also show a printed page label that differs from the physical number.
 
+Use **Add a PDF edition** directly in Compare or in Documents to upload your own pair. Compare keeps the first policy selected for the second upload and selects both ready editions in date order. The top-corner **English / עברית** switch translates the workspace, guide, status messages and source controls. The preference is stored in a non-sensitive cookie and applied during server rendering; switching languages keeps the current selection and question. New ClauseLens explanations use the selected language, while saved explanations and source quotations retain their original text.
+
+Yellow marker highlights show changed words across the complete matched section, including expanded excerpts and page boundaries. Original excerpt text and page links are preserved. Comparison uses Unicode word tokens for English and Hebrew, original chunk order, and suppresses unchanged moved excerpts. Highlight work is bounded for very large sections; an unmarked excerpt alone is not proof that the section is unchanged.
+
 Setup installs the Python PDF extractor into `.python/` and downloads about 23 MB of pinned MiniLM model files into `.data/models/`. After that, local comparison runs offline. The first API request applies the database migration automatically. The default local database is PostgreSQL in a single PGlite process, with persistent data in `.data/postgres/`. Run one app process per embedded database directory.
 
 ### ClauseLens (optional AI explanation)

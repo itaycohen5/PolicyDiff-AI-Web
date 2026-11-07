@@ -10,11 +10,12 @@ test("the bilingual guide explains the second upload and can fill a comparison q
   await expect(page.getByRole("region", { name: "Your first policy comparison" }).getByText("For the second PDF", { exact: false })).toBeVisible();
   await page.getByRole("button", { name: "עברית", exact: true }).click();
   await expect(page.getByRole("heading", { name: "איך משווים שני מסמכים?" })).toBeVisible();
-  await expect(page.locator('[dir="rtl"][lang="he"]')).toBeVisible();
+  await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
+  await expect(page.getByRole("button", { name: "הוראות שימוש", exact: true })).toBeVisible();
   await page.getByRole("button", { name: "מה השתנה בכיסויים ובחריגים?", exact: false }).click();
-  await expect(page.getByRole("textbox", { name: "Comparison question" })).toHaveValue("What changed in the coverage and exclusions?");
-  await page.getByRole("button", { name: "Read the guide", exact: false }).click();
-  await page.getByRole("button", { name: "Add my PDFs", exact: true }).click();
-  await expect(page.getByLabel("Policy name")).toBeVisible();
+  await expect(page.getByRole("textbox", { name: "שאלה להשוואה" })).toHaveValue("What changed in the coverage and exclusions?");
+  await page.getByRole("button", { name: "למדריך השימוש", exact: false }).click();
+  await page.getByRole("button", { name: "העלאת המסמכים שלי", exact: true }).click();
+  await expect(page.getByLabel("שם הפוליסה")).toBeVisible();
 });
 

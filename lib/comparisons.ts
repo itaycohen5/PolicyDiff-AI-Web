@@ -31,14 +31,14 @@ export async function getComparison(id: string): Promise<Comparison> {
   const { rows } = await store.query<Finding>(`
     SELECT f.id, f.section, f.kind, f.description, f.ai_explanation, f.ai_context_complete, coalesce(
       (SELECT jsonb_agg(jsonb_build_object('id', c.id, 'side', s.side, 'body', c.body,
-        'page', s.page, 'version_id', s.version_id) ORDER BY s.side DESC, s.position, c.ordinal)
+        'page', s.page, 'version_id', s.version_id, 'ordinal', c.ordinal) ORDER BY s.side DESC, s.position, c.ordinal)
       FROM sources s JOIN chunks c ON c.id = s.chunk_id WHERE s.finding_id = f.id), '[]') AS sources
     FROM findings f WHERE f.comparison_id = $1 ORDER BY f.position
   `, [id]);
   return { ...summary, findings: rows };
 }
 
-export async function compare({ oldId, newId, question, mode }: ComparisonInput) {
+export async function compare({ oldId, newId, question, mode, answerLanguage = "en" }: ComparisonInput) {
   if (oldId === newId) throw new RequestError("Select two different editions.");
   if (explicitSections(question).length > 10) {
     throw new RequestError("Compare up to 10 section numbers at a time. Split this question into smaller comparisons.", 422);
@@ -65,7 +65,7 @@ export async function compare({ oldId, newId, question, mode }: ComparisonInput)
   const [older, newer] = await Promise.all([sectionEvidence(store, oldId, sections), sectionEvidence(store, newId, sections)]);
   const candidates = makeCandidates(sections, older, newer, rankedOld, rankedNew);
   const unchanged = sections.filter((section) => makeCandidates([section], older, newer, rankedOld, rankedNew).length === 0);
-  const findings = mode === "local" ? candidates : await explain(question, candidates);
+  const findings = mode === "local" ? candidates : await explain(question, candidates, answerLanguage);
   const comparisonId = await store.transaction(async (tx) => {
     const { rows: [created] } = await tx.query<{id: string}>(`
       INSERT INTO comparisons(policy_id, old_id, new_id, question, mode, unchanged_sections, workspace_id)

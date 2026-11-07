@@ -6,6 +6,7 @@ export const comparisonInput = z.object({
   newId: id,
   question: z.string().trim().min(1).max(400),
   mode: z.enum(["local", "openrouter"]).default("local"),
+  answerLanguage: z.enum(["en", "he"]).optional(),
 });
 export const uploadInput = z.object({
   policyId: id.optional(),
@@ -36,7 +37,7 @@ export type Version = {
   can_resume: boolean;
 };
 export type Policy = { id: string; name: string; demo: boolean; versions: Version[] };
-export type Source = { id: string; page: number; body: string; version_id: string; side: "old" | "new" };
+export type Source = { id: string; page: number; body: string; version_id: string; side: "old" | "new"; ordinal?: number };
 export type Finding = { id: string; section: string; kind: Kind; description: string; ai_explanation: string | null; ai_context_complete: boolean; sources: Source[] };
 export type ComparisonSummary = {
   id: string;
