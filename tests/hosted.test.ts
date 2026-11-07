@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { after, test } from "node:test";
 import { GET, POST } from "../app/api/[...path]/route";
 import { closeDb, db } from "../lib/db";
-import { comparisonBudget, purgeExpiredWorkspaces, workspaceRequest } from "../lib/workspace";
+import { comparisonBudget, publicBudget, purgeExpiredWorkspaces, workspaceRequest } from "../lib/workspace";
 import { textPdf } from "./fixtures";
 
 delete process.env.DATABASE_URL;
@@ -109,6 +109,71 @@ test("hosted workspaces gate uploads, isolate documents and delete only their ow
     delete process.env.POLICYDIFF_STATIC_DEMO;
     delete process.env.POLICYDIFF_SESSION_SECRET;
     delete process.env.POLICYDIFF_ACCESS_CODE;
+  }
+});
+
+test("public visitors can upload, ingest, compare and open sources without a code while network quotas remain atomic", async () => {
+  process.env.POLICYDIFF_CLOUD_MODE = "1";
+  process.env.POLICYDIFF_PUBLIC_ACCESS = "1";
+  process.env.POLICYDIFF_SESSION_SECRET = "test-session-secret-at-least-thirty-two-characters";
+  process.env.OPENROUTER_API_KEY = "test-configuration-only";
+  try {
+    const a = await request("workspace");
+    const state = await a.response.json();
+    assert.equal(state.requiresAccessCode, false);
+    assert.equal(state.demoOnly, false);
+    assert.equal(state.openRouter, true);
+    const ids: string[] = [];
+    let policyId: string | undefined;
+    for (const [index, days] of ["seven", "ten"].entries()) {
+      const form = new FormData();
+      if (policyId) form.set("policyId", policyId);
+      else form.set("name", "Anonymous public test");
+      form.set("label", `Edition ${index + 1}`);
+      form.set("effectiveOn", `${2025 + index}-01-01`);
+      form.set("file", new File([new Uint8Array(textPdf(["2.1 Assistance", `The policy covers documented roadside assistance expenses for the insured automobile for ${days} days following a covered event.`]))], "public.pdf", { type: "application/pdf" }));
+      const upload = await request("versions", a.cookie, form);
+      assert.equal(upload.response.status, 201);
+      const version = await upload.response.json();
+      ids.push(version.id);
+      const uploadedState = await (await request("workspace", a.cookie)).response.json();
+      policyId = uploadedState.policies.find((p: {demo: boolean}) => !p.demo)?.id;
+      assert.ok(policyId);
+      const ingested = await request(`ingest/${version.id}`, a.cookie, "");
+      assert.equal(ingested.response.status, 200);
+    }
+    const result = await request("comparisons", a.cookie, JSON.stringify({ oldId: ids[0], newId: ids[1], question: "What changed in section 2.1 assistance?", mode: "local" }), "application/json");
+    assert.equal(result.response.status, 201);
+    const comparison = await result.response.json();
+    assert.ok(comparison.findings.length);
+    const source = comparison.findings.flatMap((f: {sources: {version_id: string; page: number}[]}) => f.sources)[0];
+    assert.ok(source);
+    assert.equal((await request(`pdf/${source.version_id}/${source.page}`, a.cookie)).response.headers.get("content-type"), "image/png");
+    const stranger = await request("workspace");
+    assert.equal((await stranger.response.json()).policies.some((p: {id: string}) => p.id === policyId), false);
+    assert.equal((await request(`comparisons/${comparison.id}`, stranger.cookie)).response.status, 404);
+    assert.equal((await request(`pdf/${ids[0]}`, stranger.cookie)).response.status, 404);
+    const store = await db();
+    const before = await store.query("SELECT id FROM workspaces");
+    const crossOrigin = await POST(new Request("http://localhost/api/versions", { method: "POST", headers: { host: "localhost", origin: "https://evil.example" } }), { params: Promise.resolve({ path: ["versions"] }) });
+    assert.equal(crossOrigin.status, 403);
+    assert.equal((await store.query("SELECT id FROM workspaces")).rows.length, before.rows.length);
+    assert.equal((await request("clear", a.cookie, "")).response.status, 200);
+    const quotaRequest = new Request("http://localhost/api/comparisons");
+    const quota = await Promise.allSettled(Array.from({length: 60}, () => publicBudget(quotaRequest, "comparison")));
+    // The successful comparison above already consumed one of this network's 60 requests.
+    assert.equal(quota.filter((r) => r.status === "fulfilled").length, 59);
+    assert.equal(quota.filter((r) => r.status === "rejected").length, 1);
+    assert.equal((await request("comparisons", stranger.cookie, "{}", "application/json")).response.status, 429);
+    for (let i = 0; i < 28; i++) assert.equal((await request("workspace")).response.status, 200);
+    assert.equal((await request("workspace", "policydiff_workspace=tampered")).response.status, 429);
+    // Existing visitors still have access when new-session creation is throttled.
+    assert.equal((await request("workspace", stranger.cookie)).response.status, 200);
+    process.env.POLICYDIFF_DEMO_ONLY = "1";
+    assert.equal((await request("workspace", stranger.cookie).then((r) => r.response.json())).demoOnly, true);
+    assert.equal((await request("versions", stranger.cookie, "")).response.status, 403);
+  } finally {
+    for (const key of ["POLICYDIFF_CLOUD_MODE", "POLICYDIFF_PUBLIC_ACCESS", "POLICYDIFF_SESSION_SECRET", "OPENROUTER_API_KEY", "POLICYDIFF_DEMO_ONLY"]) delete process.env[key];
   }
 });
 

@@ -75,7 +75,7 @@ async function initialize() {
       const appliedIds = new Set(applied.rows.map(({ id }) => id));
       const migrations = [[1, "001_initial.sql"], [2, "002_openrouter_mode.sql"], [3, "003_ai_explanation.sql"],
         [4, "004_source_order.sql"], [5, "005_ai_context.sql"], [6, "006_unchanged_sections.sql"],
-        [7, "007_hosted_workspaces.sql"]] as const;
+        [7, "007_hosted_workspaces.sql"], [8, "008_public_request_budgets.sql"]] as const;
       for (const [id, file] of migrations) {
         if (appliedIds.has(id)) continue;
         const sql = await readFile(path.resolve("db", file), "utf8");

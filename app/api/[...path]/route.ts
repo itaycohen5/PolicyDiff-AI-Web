@@ -5,7 +5,7 @@ import { comparisonInput, id, uploadInput } from "@/lib/contracts";
 import { RequestError } from "@/lib/errors";
 import { ingest, library, loadDemo, maxPdfBytes, pdf, renderSourcePage, uploadVersion, versionForIngest } from "@/lib/ingestion";
 import { openRouterEnabled } from "@/lib/model";
-import { clearWorkspace, cloudMode, demoOnly, purgeExpiredWorkspaces, unlockWorkspace, workspaceRequest } from "@/lib/workspace";
+import { clearWorkspace, cloudMode, demoOnly, publicBudget, purgeExpiredWorkspaces, unlockWorkspace, workspaceRequest } from "@/lib/workspace";
 import { staticDemo, staticGet, staticPost } from "@/lib/static-demo";
 import { readJsonBody, readRequestBody } from "@/lib/http";
 
@@ -29,6 +29,7 @@ async function getResource(_request: Request, context: Context) {
     if (resource === "pdf" && value && rest.length === 1) {
       const page = Number(rest[0]);
       if (!/^\d{1,3}$/.test(rest[0]) || page < 1 || page > 160) throw new RequestError("Page not found.", 404);
+      await publicBudget(_request, "source");
       return new Response(new Uint8Array(await renderSourcePage(id.parse(value), page)), { headers: {
         "Content-Type": "image/png",
         "Cache-Control": "private, no-store",
@@ -48,6 +49,7 @@ async function getResource(_request: Request, context: Context) {
     }
     if (resource === "comparisons" && value) return NextResponse.json(await getComparison(id.parse(value)));
     if (resource === "pdf" && value) {
+      await publicBudget(_request, "source");
       return new Response(new Uint8Array(await pdf(id.parse(value))), { headers: {
         "Content-Type": "application/pdf",
         "Content-Disposition": 'inline; filename="policy.pdf"',
@@ -63,11 +65,6 @@ async function getResource(_request: Request, context: Context) {
 
 async function postResource(request: Request, context: Context) {
   try {
-    const origin = request.headers.get("origin");
-    if (request.headers.get("sec-fetch-site") === "cross-site" ||
-        (origin && URL.parse(origin)?.host !== request.headers.get("host"))) {
-      throw new RequestError("Cross-origin requests are disabled.", 403);
-    }
     const [resource, value, ...rest] = (await context.params).path;
     if (staticDemo()) return await staticPost((await context.params).path, request);
     if (rest.length) throw new RequestError("Resource not found.", 404);
@@ -80,9 +77,13 @@ async function postResource(request: Request, context: Context) {
       await clearWorkspace();
       return NextResponse.json({ cleared: true });
     }
-    if (resource === "demo" && !value) return NextResponse.json({ versions: await loadDemo() });
+    if (resource === "demo" && !value) {
+      await publicBudget(request, "demo");
+      return NextResponse.json({ versions: await loadDemo() });
+    }
     if (resource === "versions" && !value) {
       if (demoOnly()) throw new RequestError("Uploads are disabled in demo mode. Unlock the hosted workspace to use your own PDFs.", 403);
+      await publicBudget(request, "upload");
       const body = await readRequestBody(request, maxPdfBytes + 65_536);
       let form: FormData;
       try {
@@ -104,9 +105,11 @@ async function postResource(request: Request, context: Context) {
     if (resource === "ingest" && value) {
       const versionId = id.parse(value);
       await versionForIngest(versionId);
+      await publicBudget(request, "ingest");
       return NextResponse.json(await ingest(versionId));
     }
     if (resource === "comparisons" && !value) {
+      await publicBudget(request, "comparison");
       return NextResponse.json(await compare(comparisonInput.parse(await readJsonBody(request, 4096))), { status: 201 });
     }
     throw new RequestError("Resource not found.", 404);
@@ -120,6 +123,11 @@ export function GET(request: Request, context: Context) {
 }
 
 export function POST(request: Request, context: Context) {
+  const origin = request.headers.get("origin");
+  if (request.headers.get("sec-fetch-site") === "cross-site" ||
+      (origin && URL.parse(origin)?.host !== request.headers.get("host"))) {
+    return Promise.resolve(fail(new RequestError("Cross-origin requests are disabled.", 403)));
+  }
   return workspaceRequest(request, async () => {
     if (cloudMode()) await purgeExpiredWorkspaces();
     return postResource(request, context);

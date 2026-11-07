@@ -86,6 +86,8 @@ export function UserGuide({ onDocuments, onDemo, onQuestion, busy, demoOnly, tem
               : "Documents and comparisons are stored in this workspace and can be reopened in Documents and History.")}</li>
           {temporary && <li>{hebrew ? "סביבת העבודה הזמנית מוגבלת לשני מסמכים ולעשר השוואות, ופגה אחרי שעה ללא פעילות. אפשר למחוק את הנתונים דרך ניקוי סביבת העבודה שלי."
             : "A temporary workspace holds two PDFs and up to ten comparisons, and expires after one hour of inactivity. Use Clear my workspace to delete your data."}</li>}
+          {temporary && <li>{hebrew ? "כדי שהשירות יישאר זמין לכולם, יש גם מכסות שעתיות משותפות לכל חיבור אינטרנט: 20 העלאות ו־60 בקשות השוואה. אם הגעתם למכסה, נסו שוב בתחילת השעה הבאה. ClauseLens משתמש במודל חינמי, שגם לו עשויות להיות מגבלות זמינות וקצב."
+            : "To keep the service available, each internet connection shares hourly limits of 20 uploads and 60 comparison requests. If a limit is reached, try again at the next full hour. ClauseLens uses a free model with its own availability and rate limits."}</li>}
           <li>{hebrew ? "בחירת ClauseLens שולחת את השאלה ואת הטקסט הרלוונטי ל־OpenRouter ולספק המודל. בדקו שהמסמכים מתאימים לשירות חיצוני לפני בחירה במצב זה."
             : "ClauseLens sends your question and relevant text through OpenRouter to its model provider. Check that your documents are suitable for an external service before selecting this mode."}</li>
           {demoOnly && <li>{hebrew ? "בסביבת הדמו הזאת אפשר להשוות רק את המסמכים הציבוריים המוכנים מראש."

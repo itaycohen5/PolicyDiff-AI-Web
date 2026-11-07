@@ -1,5 +1,6 @@
 import { AsyncLocalStorage } from "node:async_hooks";
 import { createHmac, randomUUID, timingSafeEqual } from "node:crypto";
+import { isIP } from "node:net";
 import { db } from "./db";
 import { RequestError } from "./errors";
 
@@ -9,8 +10,9 @@ const current = new AsyncLocalStorage<Workspace>();
 const cookieName = "policydiff_workspace";
 
 export const cloudMode = () => process.env.POLICYDIFF_CLOUD_MODE === "1" && process.env.POLICYDIFF_STATIC_DEMO !== "1";
+export const publicAccess = () => cloudMode() && process.env.POLICYDIFF_PUBLIC_ACCESS === "1";
 export const workspaceId = () => current.getStore()?.id ?? localWorkspaceId;
-export const demoOnly = () => process.env.POLICYDIFF_DEMO_ONLY === "1" || (cloudMode() && !current.getStore()?.unlocked);
+export const demoOnly = () => process.env.POLICYDIFF_DEMO_ONLY === "1" || (cloudMode() && !publicAccess() && !current.getStore()?.unlocked);
 
 function secret() {
   const value = process.env.POLICYDIFF_SESSION_SECRET;
@@ -22,7 +24,7 @@ function signature(payload: string) {
   return createHmac("sha256", secret()).update(payload).digest("base64url");
 }
 
-function readWorkspace(request: Request): Workspace {
+function readWorkspace(request: Request): Workspace | undefined {
   const token = request.headers.get("cookie")?.split(";").map((part) => part.trim()).find((part) => part.startsWith(cookieName + "="))?.slice(cookieName.length + 1);
   if (token) {
     const [payload, mac, extra] = token.split(".");
@@ -40,14 +42,39 @@ function readWorkspace(request: Request): Workspace {
       }
     }
   }
-  return { id: randomUUID(), unlocked: false, expires: Date.now() + 3_600_000 };
+}
+
+const publicLimits = { workspace: 30, upload: 20, ingest: 40, comparison: 60, source: 240, demo: 10 } as const;
+
+/** Shared atomic quotas survive new cookies, concurrent requests and server restarts. */
+export async function publicBudget(request: Request, action: keyof typeof publicLimits) {
+  if (!publicAccess()) return;
+  // Vercel overwrites X-Forwarded-For at its trusted ingress. Other deployments
+  // deliberately share a single bucket rather than trusting arbitrary headers.
+  const ip = process.env.VERCEL === "1"
+    ? request.headers.get("x-forwarded-for")?.split(",")[0].trim().toLowerCase()
+    : "127.0.0.1";
+  if (!ip || !isIP(ip)) throw new RequestError("The workspace is temporarily unavailable. Please try again.", 503);
+  const hour = Math.floor(Date.now() / 3_600_000);
+  const subject = createHmac("sha256", secret()).update(`${hour}:${ip}`).digest("hex");
+  const store = await db();
+  const { rows } = await store.query(`
+    INSERT INTO request_budgets(subject, action, window_start, hits)
+    VALUES ($1, $2, $3, 1)
+    ON CONFLICT (subject, action, window_start) DO UPDATE
+    SET hits = request_budgets.hits + 1 WHERE request_budgets.hits < $4
+    RETURNING hits
+  `, [subject, action, hour, publicLimits[action]]);
+  if (!rows.length) throw new RequestError("This network has reached its hourly usage limit. Please try again after the next full hour.", 429);
 }
 
 export async function workspaceRequest(request: Request, handler: () => Promise<Response>) {
   if (!cloudMode()) return handler();
   try {
     secret();
-    const workspace = readWorkspace(request);
+    const existing = readWorkspace(request);
+    if (!existing) await publicBudget(request, "workspace");
+    const workspace = existing ?? { id: randomUUID(), unlocked: false, expires: Date.now() + 3_600_000 };
     workspace.expires = Date.now() + 3_600_000;
     const store = await db();
     await store.query(`
@@ -108,6 +135,7 @@ export async function clearWorkspace() {
 
 export async function purgeExpiredWorkspaces() {
   const store = await db();
+  await store.query("DELETE FROM request_budgets WHERE window_start < $1", [Math.floor(Date.now() / 3_600_000) - 1]);
   return store.transaction(async (tx) => {
     const { rows } = await tx.query<{ id: string }>("SELECT id FROM workspaces WHERE expires_at < now() ORDER BY expires_at LIMIT 50 FOR UPDATE SKIP LOCKED");
     const ids = rows.map(({ id }) => id);

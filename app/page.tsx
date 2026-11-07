@@ -327,7 +327,7 @@ export default function PolicyDiff() {
                     <label className="mode lens-frame">
                       <input type="radio" name="analysis-mode" checked={mode === "openrouter"} onChange={() => { clearComparison(); setMode("openrouter"); }} disabled={!workspace.openRouter} />
                       <span><strong className="lens-title"><Icon name="spark" />{analysisModeLabels.openrouter}</strong>
-                        <small>{t(workspace.staticDemo ? "Prepared AI explanation" : workspace.openRouter ? "AI explanation plus source comparison" : workspace.demoOnly ? "Unavailable in public demo" : "AI explanations unavailable")}</small></span>
+                        <small>{t(workspace.staticDemo ? "Prepared AI explanation" : workspace.openRouter ? "AI explanation plus source comparison" : workspace.requiresAccessCode ? "Enter the access code to enable AI" : "AI explanations unavailable")}</small></span>
                     </label>
                   </div>
                 </fieldset>
