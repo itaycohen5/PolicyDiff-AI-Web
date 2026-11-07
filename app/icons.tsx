@@ -10,6 +10,7 @@ const paths = {
   plus: "M12 5v14M5 12h14",
   spark: "M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8zM19 14v6m-3-3h6",
   check: "m5 12 4 4L19 6",
+  copy: "M9 9h12v12H9zM15 9V3H3v12h6",
   close: "m6 6 12 12M18 6 6 18",
   lock: "M7 10V7a5 5 0 0 1 10 0v3M5 10h14v11H5zM12 14v3",
   info: "M12 11v6m0-10h.01M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0Z",

@@ -1,10 +1,10 @@
 import Image from "next/image";
 import { diffWordsWithSpace } from "diff";
 import { useEffect, useRef, useState } from "react";
-import { analysisModeLabels, type Comparison, type Finding, type Kind, type Source } from "@/lib/contracts";
+import { analysisModeLabels, type Comparison, type Finding, type Source } from "@/lib/contracts";
+import { comparisonText, findingDescription, findingStatusText as statusText, findingText } from "@/lib/copy-text";
 import { ComparisonDiagram, Icon } from "./icons";
-
-const statusText: Record<Kind, string> = { added: "Added", removed: "Removed", changed: "Changed", review: "Needs review" };
+import { CopyButton } from "./copy-button";
 
 export function pdfUrl(source: Source) {
   return "/api/pdf/" + source.version_id + "#page=" + source.page;
@@ -37,18 +37,18 @@ function FindingRow({ finding, aiRequested, onSource }: { finding: Finding; aiRe
   return <article className="finding" aria-label={finding.section + " " + statusText[finding.kind]}>
     <div className="finding-heading">
       <h3>{finding.section}</h3><span className={"finding-kind " + finding.kind}>{statusText[finding.kind]}</span>
+      <CopyButton label={"Copy finding " + finding.section} getText={() => findingText(finding, window.location.origin, aiRequested)} />
     </div>
     {finding.ai_explanation && finding.ai_context_complete && <div className="lens-frame lens-explanation">
-      <h4 className="lens-title"><Icon name="spark" />{analysisModeLabels.openrouter} <span>AI explanation · Review against sources</span></h4>
+      <div className="lens-explanation-heading"><h4 className="lens-title"><Icon name="spark" />{analysisModeLabels.openrouter} <span>AI explanation · Review against sources</span></h4>
+        <CopyButton label={"Copy AI explanation for " + finding.section} getText={() => finding.ai_explanation!} /></div>
       <p>{finding.ai_explanation}</p>
     </div>}
     {finding.ai_explanation && !finding.ai_context_complete && <p className="ai-unavailable"><Icon name="info" />
       This saved AI explanation used partial excerpts. Run the comparison again to review the full section.</p>}
     {aiRequested && !finding.ai_explanation && <p className="ai-unavailable"><Icon name="info" />
       No AI explanation was accepted for this finding. Review the source wording below.</p>}
-    <p className="finding-description">{finding.kind === "changed"
-      ? finding.description.replace(/Edited passage: .*/s, "Compare the matched excerpts and verify the wording in both PDFs.")
-      : finding.description}</p>
+    <p className="finding-description">{findingDescription(finding)}</p>
     <div className="passages">{passages.map(({ label, sources }, side) => <section className="passage" key={label} aria-label={label}>
       <h4>{label}</h4>
       {!sources.length && <p className="muted">No supporting excerpt found.</p>}
@@ -93,7 +93,8 @@ export function Findings({ comparison, pending, canCompare, onSource }: {
         <p>{comparison ? comparison.old_label + " → " + comparison.new_label : "Side-by-side wording and source evidence."}</p>
         {comparison && <p className="scope-note">Results cover up to 10 matched sections for this question.</p>}
       </div>
-      {comparison && <span className="result-count">{findings.length} {findings.length === 1 ? "finding" : "findings"}</span>}
+      {comparison && <div className="result-actions"><span className="result-count">{findings.length} {findings.length === 1 ? "finding" : "findings"}</span>
+        {!pending && <CopyButton key={comparison.id} label="Copy complete comparison" getText={() => comparisonText(comparison, window.location.origin)} />}</div>}
     </div>
     {pending && <div className="result-state" role="status">
       <div className="skeleton"><span /><span /><span /></div>

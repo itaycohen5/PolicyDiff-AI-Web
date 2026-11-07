@@ -54,6 +54,8 @@ export function UserGuide({ onDocuments, onDemo, onQuestion, busy, demoOnly, tem
             : <>Read the older and newer wording. Each <b>Preview older/newer PDF</b> link opens its source page. Expand <b>More wording</b> to read the rest of the section.</>}</p>
           <p className="muted">{hebrew ? <>ממצא <bdi>Needs review</bdi> דורש בדיקה ידנית. סעיף שלא נמצא אינו הוכחה להסרתו. סעיפים שנבדקו ונמצאו זהים מופיעים בנפרד, וניתן לפתוח השוואות קודמות ב־<bdi>History</bdi>.</>
             : <>A <b>Needs review</b> finding needs a manual check. A section missing from search is insufficient proof of removal. Checked, unchanged sections appear separately. Reopen previous comparisons in <b>History</b>.</>}</p>
+          <p className="muted">{hebrew ? <>לחצו <bdi>Copy</bdi> ליד כותרת התוצאות כדי להעתיק את ההשוואה המלאה, כולל המקורות. ליד כל ממצא וליד הסבר <bdi>ClauseLens</bdi> יש כפתור להעתקה נפרדת. ההודעה <bdi>Copied!</bdi> מאשרת שהטקסט הועתק.</>
+            : <>Use <b>Copy</b> beside the results heading to copy the complete comparison with its sources. Each finding and ClauseLens explanation also has its own Copy button. <b>Copied!</b> confirms the text is on your clipboard.</>}</p>
         </div></li>
       </ol>
       <div className="guide-actions">

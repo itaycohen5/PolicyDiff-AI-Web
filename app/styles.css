@@ -208,6 +208,16 @@ input::file-selector-button { margin-inline-end: 8px; padding: 5px 7px; border: 
 .finding + .finding { margin-top: 3px; padding-top: 22px; border-top: 1px solid var(--line); }
 .finding-heading { display: flex; align-items: center; gap: 9px; margin-bottom: 6px; }
 .finding-heading h3 { font-size: 18px; font-variant-numeric: tabular-nums; }
+.finding-heading { flex-wrap: wrap; }
+.finding-heading > .copy-control { margin-inline-start: auto; }
+.result-actions, .lens-explanation-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+.result-actions { justify-content: flex-end; }
+.copy-control { min-width: 0; max-width: 100%; }
+.button.copy-button { min-height: 32px; padding: 4px 9px; gap: 5px; font-size: 12px; white-space: nowrap; }
+.copy-button svg { width: 14px; height: 14px; }
+.copy-error { max-width: 32ch; margin-top: 6px; color: var(--error); font-size: 12px; overflow-wrap: anywhere; }
+.lens-explanation-heading { margin-bottom: 5px; }
+.lens-explanation-heading .lens-title { margin-bottom: 0; flex: 1; }
 .finding-kind { padding: 2px 6px; border-radius: 4px; background: var(--sky-soft); color: var(--navy); font-size: 11px; font-weight: 670; }
 .finding-kind.removed, .finding-kind.review { background: var(--beige); }
 .finding-description { color: var(--muted); max-width: 78ch; overflow-wrap: anywhere; }
